@@ -1,0 +1,217 @@
+---
+// Contact.astro
+const WEB3FORMS_KEY = '8b21eea7-0cf7-436c-98ee-c75301143400';
+---
+
+<section class="section" id="contacto">
+  <span class="sec-label">Contacto</span>
+  <h2 class="sec-title">Hablemos</h2>
+  <p class="sec-body">
+    Dedicatorias, auspicios, consultas y todo lo que quieras hacernos llegar.
+  </p>
+
+  <div class="contact-layout">
+
+    <!-- Datos -->
+    <div class="contact-data">
+      <div class="contact-card">
+        <p class="contact-label">Teléfono</p>
+        <p class="contact-val">4664 5124 / 4664 3408</p>
+      </div>
+      <div class="contact-card">
+        <p class="contact-label">Celular</p>
+        <p class="contact-val">092 104 995</p>
+      </div>
+      <div class="contact-card">
+        <p class="contact-label">Email</p>
+        <p class="contact-val">
+          <a href="mailto:santaisabelfm@vera.com.uy">santaisabelfm@vera.com.uy</a>
+        </p>
+      </div>
+      <div class="contact-card">
+        <p class="contact-label">Dirección</p>
+        <p class="contact-val">Baltasar Brum 753, Paso de los Toros</p>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <form class="contact-form" id="contact-form">
+      <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+      <input type="hidden" name="subject" value="Mensaje desde santaisabelfm.com.uy" />
+      <input type="checkbox" name="botcheck" style="display:none" />
+
+      <div class="field">
+        <label for="cf-name">Nombre</label>
+        <input type="text" id="cf-name" name="name" placeholder="Tu nombre" required />
+      </div>
+
+      <div class="field">
+        <label for="cf-email">Email</label>
+        <input type="email" id="cf-email" name="email" placeholder="tu@email.com" required />
+      </div>
+
+      <div class="field">
+        <label for="cf-msg">Mensaje</label>
+        <textarea id="cf-msg" name="message" rows="4" placeholder="Tu mensaje..." required></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btn-submit">
+        Enviar mensaje
+      </button>
+
+      <p class="form-status" id="form-status"></p>
+    </form>
+
+  </div>
+</section>
+
+<style>
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 3rem;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .contact-layout { grid-template-columns: 1fr; }
+  }
+
+  .contact-data {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--faint);
+    border: 1px solid var(--faint);
+    border-radius: 4px;
+    overflow: hidden;
+    align-self: start;
+  }
+
+  .contact-card {
+    background: var(--surface);
+    padding: 1.1rem 1.25rem;
+  }
+
+  .contact-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue-bright);
+    margin-bottom: 5px;
+  }
+
+  .contact-val {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .contact-val a { color: var(--text); }
+
+  /* Formulario */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  input, textarea {
+    background: var(--surface-2);
+    border: 1px solid var(--faint);
+    border-radius: 4px;
+    padding: .65rem 1rem;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus { border-color: var(--blue); }
+  input::placeholder, textarea::placeholder { color: var(--text-faint); }
+
+  .btn-submit {
+    background: var(--blue);
+    color: #f0eeea;
+    border: none;
+    border-radius: 4px;
+    padding: 14px 32px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: flex-start;
+  }
+
+  .btn-submit:hover { background: var(--blue-bright); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .form-status {
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 20px;
+  }
+
+  .form-status.ok  { color: #25d366; }
+  .form-status.err { color: var(--red-bright); }
+</style>
+
+<script>
+  const form   = document.getElementById('contact-form') as HTMLFormElement;
+  const btn    = document.getElementById('btn-submit') as HTMLButtonElement;
+  const status = document.getElementById('form-status')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    status.textContent = '';
+    status.className = 'form-status';
+
+    const data = new FormData(form);
+
+    try {
+      const res  = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: data,
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        status.textContent = '¡Mensaje enviado! Te respondemos a la brevedad.';
+        status.classList.add('ok');
+        form.reset();
+      } else {
+        throw new Error();
+      }
+    } catch {
+      status.textContent = 'Algo falló. Intentá de nuevo o escribinos al email.';
+      status.classList.add('err');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Enviar mensaje';
+  });
+</script>
