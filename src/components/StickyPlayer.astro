@@ -1,0 +1,299 @@
+---
+// StickyPlayer.astro — barra fija inferior con stream Icecast + Now Playing
+const STREAM = 'https://emisiones.com.uy:8166/san';
+const STATUS = 'https://emisiones.com.uy:8166/status-json.xsl';
+---
+
+<div class="player" id="sifm-player">
+
+  <!-- Logo pequeño -->
+  <a href="/" class="pl-logo" aria-label="Inicio">
+    <img src="/logo.jpg" alt="100.1 FM" />
+  </a>
+
+  <div class="pl-sep"></div>
+
+  <!-- Info pista -->
+  <div class="pl-info">
+    <span class="pl-label">Sonando ahora</span>
+    <span class="pl-track" id="pl-track">Santa Isabel FM — En vivo</span>
+  </div>
+
+  <!-- Mini waveform -->
+  <div class="pl-wave" id="pl-wave" aria-hidden="true">
+    <span class="pw"></span>
+    <span class="pw"></span>
+    <span class="pw"></span>
+    <span class="pw"></span>
+    <span class="pw"></span>
+  </div>
+
+  <!-- Play / Pause -->
+  <button class="pl-btn" id="pl-btn" aria-label="Reproducir">
+    <svg id="icon-play" width="13" height="15" viewBox="0 0 13 15" fill="none">
+      <path d="M1 1.5l11 6-11 6V1.5z" fill="currentColor"/>
+    </svg>
+    <svg id="icon-pause" width="12" height="14" viewBox="0 0 12 14" fill="none" style="display:none">
+      <rect x="1" y="1" width="3.5" height="12" rx="1" fill="currentColor"/>
+      <rect x="7.5" y="1" width="3.5" height="12" rx="1" fill="currentColor"/>
+    </svg>
+  </button>
+
+  <!-- Volumen -->
+  <div class="pl-vol">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M1 4.5h2.5L7 2v10l-3.5-2.5H1V4.5z" fill="currentColor" opacity=".5"/>
+      <path d="M9 4.5a3 3 0 0 1 0 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <input type="range" class="vol-range" id="vol-range" min="0" max="100" value="80" aria-label="Volumen" />
+  </div>
+
+</div>
+
+<!-- Audio element oculto -->
+<audio id="sifm-audio" preload="none"></audio>
+
+<style>
+  .player {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--player-h);
+    background: var(--surface);
+    border-top: 1px solid var(--faint);
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    gap: 1rem;
+    z-index: 300;
+    transition: background 0.3s ease;
+  }
+
+  /* Gradiente azul→rojo en el borde superior */
+  .player::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--red) 45%, transparent 70%);
+  }
+
+  /* Logo */
+  .pl-logo { flex-shrink: 0; display: flex; align-items: center; }
+  .pl-logo img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 3px;
+    opacity: 0.9;
+  }
+
+  /* Separador */
+  .pl-sep {
+    width: 1px;
+    height: 28px;
+    background: var(--surface-3);
+    flex-shrink: 0;
+  }
+
+  /* Info */
+  .pl-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .pl-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    line-height: 1;
+  }
+
+  .pl-track {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+
+  /* Mini waveform */
+  .pl-wave {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .pw {
+    display: block;
+    width: 3px;
+    border-radius: 2px;
+    animation: pw-wave 0.85s ease-in-out infinite alternate;
+  }
+
+  .pw:nth-child(odd)  { background: var(--blue); }
+  .pw:nth-child(even) { background: var(--red); }
+  .pw:nth-child(1)  { height: 6px;  animation-delay: 0.00s; }
+  .pw:nth-child(2)  { height: 14px; animation-delay: 0.14s; }
+  .pw:nth-child(3)  { height: 22px; animation-delay: 0.06s; }
+  .pw:nth-child(4)  { height: 14px; animation-delay: 0.20s; }
+  .pw:nth-child(5)  { height: 6px;  animation-delay: 0.10s; }
+
+  @keyframes pw-wave {
+    0%   { transform: scaleY(0.25); opacity: 0.3; }
+    100% { transform: scaleY(1);    opacity: 1; }
+  }
+
+  .pl-wave.paused .pw {
+    animation: none;
+    height: 3px !important;
+    opacity: 0.2;
+  }
+
+  /* Botón play/pause */
+  .pl-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--blue);
+    background: transparent;
+    color: var(--blue);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.18s, transform 0.12s;
+  }
+
+  .pl-btn:hover  { background: var(--blue-dim); }
+  .pl-btn:active { transform: scale(0.94); }
+
+  /* Volumen */
+  .pl-vol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
+  .vol-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px; height: 3px;
+    border-radius: 2px;
+    background: var(--surface-3);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .vol-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--blue);
+    cursor: pointer;
+  }
+
+  .vol-range::-moz-range-thumb {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--blue);
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Mobile */
+  @media (max-width: 500px) {
+    .pl-vol  { display: none; }
+    .pl-sep  { display: none; }
+    .pl-logo { display: none; }
+  }
+</style>
+
+<script define:vars={{ STREAM, STATUS }}>
+  const audio   = document.getElementById('sifm-audio');
+  const plBtn   = document.getElementById('pl-btn');
+  const plWave  = document.getElementById('pl-wave');
+  const plTrack = document.getElementById('pl-track');
+  const iconPlay  = document.getElementById('icon-play');
+  const iconPause = document.getElementById('icon-pause');
+  const volRange  = document.getElementById('vol-range');
+
+  let playing = false;
+
+  audio.volume = 0.8;
+
+  // ── Play / Pause ──
+  function play() {
+    audio.src = STREAM + '?t=' + Date.now();
+    audio.play().catch(() => {});
+    playing = true;
+    setUI(true);
+    window.dispatchEvent(new Event('sifm:playing'));
+  }
+
+  function pause() {
+    audio.pause();
+    audio.src = '';
+    playing = false;
+    setUI(false);
+    window.dispatchEvent(new Event('sifm:paused'));
+  }
+
+  function toggle() { playing ? pause() : play(); }
+
+  function setUI(on) {
+    iconPlay.style.display  = on ? 'none'  : 'block';
+    iconPause.style.display = on ? 'block' : 'none';
+    plWave.classList.toggle('paused', !on);
+    plBtn.setAttribute('aria-label', on ? 'Pausar' : 'Reproducir');
+  }
+
+  plBtn.addEventListener('click', toggle);
+
+  // Exponer globalmente para que Hero y Header puedan usarlo
+  window.__sifmPlay = () => playing ? pause() : play();
+
+  // ── Volumen ──
+  volRange.addEventListener('input', () => {
+    audio.volume = volRange.value / 100;
+  });
+
+  // ── Now Playing — fetch metadatos Icecast cada 30s ──
+  function fetchNowPlaying() {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+
+    fetch(STATUS, { mode: 'cors', signal: ctrl.signal })
+      .then(r => r.json())
+      .then(data => {
+        clearTimeout(timer);
+        const src = data?.icestats?.source;
+        if (!src) return;
+
+        // Icecast puede devolver un objeto o array de sources
+        const mount = Array.isArray(src)
+          ? (src.find(s => s.listenurl?.includes('/san')) ?? src[0])
+          : src;
+
+        const title = mount?.title ?? mount?.['song-title'];
+        if (title?.trim()) plTrack.textContent = title.trim();
+      })
+      .catch(() => clearTimeout(timer));
+    // Fallo silencioso: queda el fallback "Santa Isabel FM — En vivo"
+  }
+
+  fetchNowPlaying();
+  setInterval(fetchNowPlaying, 30_000);
+</script>

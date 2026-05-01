@@ -1,0 +1,184 @@
+---
+// YouTube.astro — sección de videos con embed y link al canal
+
+// Canal: @100.1EmisoraSantaIsabel
+const CHANNEL_URL  = 'https://www.youtube.com/@100.1EmisoraSantaIsabel';
+const CHANNEL_ID   = 'UCxxxxxxxxxxxxxxxxxxxx'; // ← reemplazar con el ID real del canal
+// Para obtener el ID real:
+// 1. Ir a youtube.com/@100.1EmisoraSantaIsabel
+// 2. Ver código fuente → buscar "channelId"
+// O usar: https://www.youtube.com/@100.1EmisoraSantaIsabel/about
+
+// Por ahora usamos playlist/últimos videos con el canal handle
+// Si tenés un video featured específico, reemplazá VIDEO_ID
+const VIDEO_ID = ''; // ← dejar vacío para mostrar solo el link, o poner ID de video destacado
+---
+
+<section class="section" id="videos">
+  <span class="sec-label">Canal de YouTube</span>
+  <h2 class="sec-title">Videos</h2>
+  <p class="sec-body">
+    Seguí los eventos, entrevistas y momentos especiales de Santa Isabel FM en nuestro canal de YouTube.
+  </p>
+
+  <div class="yt-wrapper">
+
+    {VIDEO_ID ? (
+      <!-- Si hay un VIDEO_ID: embed del video -->
+      <div class="yt-embed-container">
+        <iframe
+          src={`https://www.youtube.com/embed/${VIDEO_ID}?rel=0&modestbranding=1`}
+          title="Santa Isabel FM — Video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+    ) : (
+      <!-- Placeholder hasta tener VIDEO_ID -->
+      <div class="yt-placeholder">
+        <div class="yt-icon" aria-hidden="true">
+          <svg width="48" height="34" viewBox="0 0 48 34" fill="none">
+            <rect width="48" height="34" rx="8" fill="#cc1515"/>
+            <path d="M20 10l14 7-14 7V10z" fill="white"/>
+          </svg>
+        </div>
+        <p class="yt-placeholder-text">Videos disponibles en nuestro canal</p>
+      </div>
+    )}
+
+    <!-- Link al canal + info -->
+    <div class="yt-meta">
+      <div class="yt-channel-info">
+        <div class="yt-avatar" aria-hidden="true">
+          <img src="/logo.jpg" alt="Canal Santa Isabel FM" />
+        </div>
+        <div>
+          <p class="yt-channel-name">100.1 Emisora Santa Isabel</p>
+          <p class="yt-channel-sub">Canal oficial de Santa Isabel FM</p>
+        </div>
+      </div>
+
+      <a
+        href={CHANNEL_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-yt"
+      >
+        <svg width="16" height="12" viewBox="0 0 48 34" fill="none" aria-hidden="true">
+          <rect width="48" height="34" rx="8" fill="currentColor" opacity=".2"/>
+          <path d="M20 10l14 7-14 7V10z" fill="currentColor"/>
+        </svg>
+        Ver canal completo
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .yt-wrapper {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Embed 16:9 responsive */
+  .yt-embed-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+
+  .yt-embed-container iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  /* Placeholder */
+  .yt-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--surface-2);
+    border: 1px solid var(--faint);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .yt-placeholder-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* Meta row */
+  .yt-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .yt-channel-info {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+  }
+
+  .yt-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--faint);
+  }
+
+  .yt-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .yt-channel-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .yt-channel-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Botón canal */
+  .btn-yt {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--red);
+    color: #f0eeea;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-yt:hover { background: var(--red-bright); text-decoration: none; }
+</style>

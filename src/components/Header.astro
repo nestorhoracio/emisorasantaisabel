@@ -1,0 +1,185 @@
+---
+// Header.astro — fijo arriba, logo + nav + theme switcher
+---
+
+<header class="header">
+  <div class="header-inner">
+
+    <!-- Logo -->
+    <a href="/" class="logo-link" aria-label="Santa Isabel FM — Inicio">
+      <img src="/logo.jpg" alt="Santa Isabel FM 100.1" class="logo-img" />
+    </a>
+
+    <!-- Nav -->
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="#programacion" class="nav-link">Programación</a>
+      <a href="#historia"     class="nav-link">Historia</a>
+      <a href="#videos"       class="nav-link">Videos</a>
+      <a href="#contacto"     class="nav-link">Contacto</a>
+    </nav>
+
+    <!-- Controles: tema + escuchar -->
+    <div class="header-actions">
+      <!-- Theme switcher -->
+      <button
+        id="theme-btn"
+        class="theme-btn"
+        aria-label="Cambiar tema"
+        title="Cambiar tema"
+      >
+        <span class="theme-icon" id="theme-icon">☀</span>
+      </button>
+
+      <!-- CTA mobile-friendly -->
+      <a href="#player" class="btn-listen" onclick="window.__sifmPlay && window.__sifmPlay(); return false;">
+        ▶ En vivo
+      </a>
+    </div>
+
+  </div>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--faint);
+    z-index: 200;
+    transition: background 0.3s ease;
+  }
+
+  /* Línea de acento azul abajo del header */
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    gap: 1.5rem;
+  }
+
+  /* Logo */
+  .logo-link { flex-shrink: 0; display: flex; align-items: center; }
+
+  .logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 3px;
+  }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    padding-left: 1rem;
+  }
+
+  .nav-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 .9rem;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    text-decoration: none;
+  }
+
+  .nav-link:hover {
+    color: var(--text);
+    border-bottom-color: var(--blue);
+    text-decoration: none;
+  }
+
+  /* Acciones */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-left: auto;
+  }
+
+  /* Theme button */
+  .theme-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--faint);
+    background: var(--surface-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: background 0.2s, border-color 0.2s;
+    color: var(--text-muted);
+  }
+
+  .theme-btn:hover {
+    background: var(--surface-3);
+    border-color: var(--blue);
+    color: var(--text);
+  }
+
+  /* CTA */
+  .btn-listen {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--blue);
+    color: #f0eeea;
+    padding: 8px 16px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-listen:hover { background: var(--blue-bright); text-decoration: none; }
+
+  /* Mobile: ocultar nav completa */
+  @media (max-width: 640px) {
+    .nav { display: none; }
+    .btn-listen { display: none; }
+  }
+</style>
+
+<script>
+  // ── Theme switcher ──
+  const btn  = document.getElementById('theme-btn')!;
+  const icon = document.getElementById('theme-icon')!;
+  const html = document.documentElement;
+
+  function applyTheme(theme: string) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('sifm-theme', theme);
+    icon.textContent = theme === 'dark' ? '☀' : '☽';
+  }
+
+  // Init icon desde el tema actual (ya seteado en Layout)
+  applyTheme(html.getAttribute('data-theme') || 'dark');
+
+  btn.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+</script>

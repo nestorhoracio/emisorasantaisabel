@@ -1,0 +1,145 @@
+---
+// Timeline.astro — 30 años de historia
+
+interface Hito {
+  year: number;
+  title: string;
+  body: string;
+  color: 'blue' | 'red';
+}
+
+const hitos: Hito[] = [
+  {
+    year: 1995,
+    title: 'El comienzo',
+    body: 'El 12 de octubre nace Santa Isabel FM en Paso de los Toros. Una nueva propuesta radial para una generación que buscaba algo diferente en el 100.1 del dial.',
+    color: 'blue',
+  },
+  {
+    year: 2000,
+    title: 'Consolidación',
+    body: 'Cinco años en el aire y ya somos la radio de referencia de la región. La grilla crece y la programación se profesionaliza.',
+    color: 'red',
+  },
+  {
+    year: 2005,
+    title: 'Una década en el aire',
+    body: 'Diez años construyendo comunidad. Santa Isabel FM se convierte en parte de la identidad cultural de Paso de los Toros y el departamento del Río Negro.',
+    color: 'blue',
+  },
+  {
+    year: 2010,
+    title: 'Expansión de señal',
+    body: 'La señal llega con más fuerza a toda la región. Nuevos transmisores y tecnología de broadcasting actualizada.',
+    color: 'red',
+  },
+  {
+    year: 2015,
+    title: 'Streaming digital',
+    body: 'Inicio de la transmisión online. Por primera vez, los oyentes de Santa Isabel FM pueden escucharnos desde cualquier lugar del mundo.',
+    color: 'blue',
+  },
+  {
+    year: 2020,
+    title: 'Presencia digital',
+    body: 'Canal de YouTube y crecimiento en redes sociales. La radio trasciende el dial y acompaña a su audiencia en todas las pantallas.',
+    color: 'red',
+  },
+  {
+    year: 2025,
+    title: '30 años · nueva etapa',
+    body: 'Tres décadas en el aire y una plataforma digital renovada. Seguimos siendo la radio de Paso de los Toros, ahora también para el mundo.',
+    color: 'blue',
+  },
+];
+---
+
+<section class="section" id="historia">
+  <span class="sec-label">Nuestra historia</span>
+  <h2 class="sec-title">30 años<br>en el dial</h2>
+  <p class="sec-body">
+    Desde 1995, la voz de Paso de los Toros y toda la región del Río Negro.
+  </p>
+
+  <div class="timeline">
+    {hitos.map((h) => (
+      <div class={`tl-item tl-${h.color}`}>
+        <div class="tl-year">{h.year}</div>
+        <div class="tl-content">
+          <strong class="tl-title">{h.title}</strong>
+          <p class="tl-body">{h.body}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .timeline {
+    margin-top: 3rem;
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  /* Línea vertical */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--blue), var(--red), var(--blue));
+    opacity: 0.3;
+  }
+
+  .tl-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 1.25rem;
+    padding: 1.5rem 0 1.5rem 2rem;
+    border-bottom: 1px solid var(--surface-2);
+    position: relative;
+  }
+
+  .tl-item:last-child { border-bottom: none; }
+
+  /* Punto en la línea */
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -3px; top: 2rem;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .tl-blue::before { background: var(--blue); }
+  .tl-red::before  { background: var(--red); }
+
+  .tl-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .tl-blue .tl-year { color: var(--blue-bright); }
+  .tl-red  .tl-year { color: var(--red); }
+
+  .tl-title {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .tl-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+
+  @media (max-width: 480px) {
+    .tl-item { grid-template-columns: 60px 1fr; gap: .75rem; }
+    .tl-year  { font-size: 1.6rem; }
+  }
+</style>

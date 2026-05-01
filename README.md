@@ -1,43 +1,119 @@
-# Astro Starter Kit: Minimal
+# Santa Isabel FM — Sitio Web
+## Stack: Astro + Netlify
 
-```sh
-npm create astro@latest -- --template minimal
+---
+
+## Setup inicial (una sola vez)
+
+Abrí la terminal en VSCode (`Ctrl + `` ` ``) y ejecutá:
+
+```bash
+# 1. Inicializar proyecto Astro en la carpeta actual
+npm create astro@latest . -- --template minimal --no-git
+
+# Responder los prompts:
+# ✔ Where should we create your new project? → . (punto, carpeta actual)
+# ✔ How would you like to start your new project? → Empty
+# ✔ Install dependencies? → Yes
+# ✔ Initialize a new git repository? → Yes (o No si ya tenés git)
+
+# 2. Si no instaló dependencias automáticamente:
+npm install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+---
 
-## 🚀 Project Structure
+## Estructura de archivos a reemplazar/crear
 
-Inside of your Astro project, you'll see the following folders and files:
+Después del `npm create astro`, **reemplazá** los archivos generados con los de esta carpeta:
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```
+src/
+├── styles/
+│   └── global.css          ← NUEVO (crear carpeta styles)
+├── layouts/
+│   └── Layout.astro        ← REEMPLAZAR
+├── pages/
+│   └── index.astro         ← REEMPLAZAR
+└── components/
+    ├── Header.astro         ← NUEVO
+    ├── Hero.astro           ← NUEVO
+    ├── StickyPlayer.astro   ← NUEVO
+    ├── Schedule.astro       ← NUEVO
+    ├── Timeline.astro       ← NUEVO
+    └── YouTube.astro        ← NUEVO
+
+astro.config.mjs             ← REEMPLAZAR
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+---
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Logo
 
-Any static assets, like images, can be placed in the `public/` directory.
+Copiá el logo de la emisora a:
+```
+public/logo.jpg
+```
 
-## 🧞 Commands
+El header y el player lo toman automáticamente desde `/logo.jpg`.
 
-All commands are run from the root of the project, from a terminal:
+---
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## YouTube — configuración
 
-## 👀 Want to learn more?
+En `src/components/YouTube.astro`, completar `VIDEO_ID`:
+- Ir a YouTube → canal @100.1EmisoraSantaIsabel
+- Elegir el video más representativo o el último
+- Copiar el ID de la URL: `youtube.com/watch?v=`**`ESTE_ES_EL_ID`**
+- Pegar en la variable `VIDEO_ID`
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+---
+
+## Correr en desarrollo
+
+```bash
+npm run dev
+# → http://localhost:4321
+```
+
+## Build para producción
+
+```bash
+npm run build
+# Genera la carpeta /dist
+```
+
+## Deploy en Netlify
+
+1. Subir el repo a GitHub
+2. En Netlify → "Add new site" → "Import from Git"
+3. Build command: `npm run build`
+4. Publish directory: `dist`
+5. Cambiar DNS del dominio en nic.com.uy → apuntar a Netlify
+
+---
+
+## Now Playing — nota técnica
+
+El endpoint de metadatos Icecast es:
+`https://emisiones.com.uy:8166/status-json.xsl`
+
+Si el fetch falla por CORS, la solución es crear un proxy en Netlify:
+
+En `netlify.toml`:
+```toml
+[[redirects]]
+  from = "/api/nowplaying"
+  to   = "https://emisiones.com.uy:8166/status-json.xsl"
+  status = 200
+  force  = true
+```
+
+Luego cambiar `STATUS` en `StickyPlayer.astro`:
+```js
+const STATUS = '/api/nowplaying';
+```
+
+---
+
+*Proyecto: Santa Isabel FM — NH Freelance · Mayo 2026*

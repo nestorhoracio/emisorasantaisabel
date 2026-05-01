@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════
+   Santa Isabel FM — Design Tokens
+   Paleta extraída del logo: azul #1c52c8 + rojo #cc1515
+   ═══════════════════════════════════════════════ */
+
+/* ── Tema oscuro (por defecto) ── */
+:root,
+[data-theme="dark"] {
+  --bg:          #080e1e;
+  --surface:     #0e1628;
+  --surface-2:   #162038;
+  --surface-3:   #1e2d4a;
+  --faint:       #243258;
+
+  --text:        #f0eeea;
+  --text-muted:  #7a8aaa;
+  --text-faint:  #3a4a6a;
+
+  --blue:        #1c52c8;
+  --blue-bright: #2b66e8;
+  --blue-dim:    rgba(28, 82, 200, 0.15);
+
+  --red:         #cc1515;
+  --red-bright:  #e82525;
+  --red-dim:     rgba(204, 21, 21, 0.14);
+
+  --header-h:    64px;
+  --player-h:    70px;
+}
+
+/* ── Tema claro ── */
+[data-theme="light"] {
+  --bg:          #f5f4f0;
+  --surface:     #ffffff;
+  --surface-2:   #eceae4;
+  --surface-3:   #e2dfd6;
+  --faint:       #d4d0c8;
+
+  --text:        #0e1628;
+  --text-muted:  #556080;
+  --text-faint:  #a0aabf;
+
+  --blue:        #1540a8;
+  --blue-bright: #0f2e80;
+  --blue-dim:    rgba(21, 64, 168, 0.10);
+
+  --red:         #b81212;
+  --red-bright:  #cc1515;
+  --red-dim:     rgba(184, 18, 18, 0.10);
+}
+
+/* ═══ Reset & Base ═══════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  padding-top: var(--header-h);
+  padding-bottom: var(--player-h);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ═══ Tipografía global ══════════════════════ */
+h1, h2, h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 0.92;
+  color: var(--text);
+}
+
+a { color: var(--blue-bright); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+/* ═══ Utilidades ════════════════════════════ */
+.divider {
+  border: none;
+  border-top: 1px solid var(--surface-2);
+}
+
+.section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+}
+
+.sec-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.sec-title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  color: var(--text);
+  margin-bottom: 1.4rem;
+}
+
+.sec-body {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.85;
+  max-width: 58ch;
+}

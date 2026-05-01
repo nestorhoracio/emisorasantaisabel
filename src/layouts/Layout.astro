@@ -1,0 +1,51 @@
+---
+import Header from '../components/Header.astro';
+import StickyPlayer from '../components/StickyPlayer.astro';
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Santa Isabel FM 100.1 — Paso de los Toros',
+  description = 'Emisora Santa Isabel FM, transmitiendo desde Paso de los Toros, Uruguay. Escuchanos en vivo en el 100.1 del dial.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    <title>{title}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tema: leer localStorage antes de pintar para evitar flash -->
+    <script is:inline>
+      const saved = localStorage.getItem('sifm-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    </script>
+  </head>
+
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <StickyPlayer />
+  </body>
+</html>

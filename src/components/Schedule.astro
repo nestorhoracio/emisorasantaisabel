@@ -1,0 +1,163 @@
+---
+// Schedule.astro — grilla de programación con highlight en tiempo real
+
+interface Programa {
+  from: number;  // hora inicio (0-23)
+  to:   number;  // hora fin   (0-23)
+  name: string;
+  host: string;
+  days: string;  // "Lun–Vie" | "Sáb–Dom" | etc
+}
+
+const programas: Programa[] = [
+  { from: 6,  to: 9,  name: 'Mañana Total',          host: 'Noticias · clima · música',   days: 'Lun–Vie' },
+  { from: 9,  to: 12, name: 'Al Mediodía',            host: 'Compañía y los mejores hits', days: 'Lun–Vie' },
+  { from: 12, to: 15, name: 'La Tarde Santa Isabel',  host: 'Hits del momento',            days: 'Lun–Dom' },
+  { from: 15, to: 18, name: 'Tarde Libre',            host: 'Música sin interrupciones',   days: 'Lun–Dom' },
+  { from: 18, to: 20, name: 'El Cierre',              host: 'Lo mejor del día',            days: 'Lun–Vie' },
+  { from: 20, to: 24, name: 'Noche de Verano',        host: 'Música internacional',        days: 'Lun–Dom' },
+];
+
+function fmt(h: number) {
+  return `${String(h).padStart(2,'0')}:00`;
+}
+---
+
+<section class="section" id="programacion">
+  <span class="sec-label">En el aire</span>
+  <h2 class="sec-title">Programación</h2>
+  <p class="sec-body">
+    La grilla resalta automáticamente el programa al aire según la hora actual.
+    Los horarios son orientativos y pueden variar.
+  </p>
+
+  <div class="prog-grid">
+    {programas.map((p, i) => (
+      <article
+        class="prog-card"
+        data-from={p.from}
+        data-to={p.to}
+        data-index={i}
+      >
+        <p class="prog-time">{fmt(p.from)} — {fmt(p.to)}</p>
+        <p class="prog-name">{p.name}</p>
+        <p class="prog-host">{p.host}</p>
+        <p class="prog-days">{p.days}</p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .prog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--faint);
+    border: 1px solid var(--faint);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2.5rem;
+  }
+
+  .prog-card {
+    background: var(--surface);
+    padding: 1.25rem;
+    position: relative;
+    transition: background 0.3s ease;
+  }
+
+  .prog-card.on-air {
+    background: var(--surface-2);
+    border-left: 3px solid var(--blue);
+  }
+
+  .prog-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--blue-bright);
+    margin-bottom: 6px;
+  }
+
+  .prog-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .prog-host {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .prog-days {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .on-air-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-dim);
+    color: var(--blue-bright);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin-top: 10px;
+  }
+
+  .on-air-dot {
+    display: block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--blue-bright);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+  }
+</style>
+
+<script>
+  function highlightCurrentShow() {
+    const h = new Date().getHours();
+
+    document.querySelectorAll<HTMLElement>('.prog-card').forEach(card => {
+      const from = Number(card.dataset.from);
+      const to   = Number(card.dataset.to);
+      const active = h >= from && h < to;
+
+      card.classList.toggle('on-air', active);
+
+      // Limpiar badge anterior
+      card.querySelector('.on-air-badge')?.remove();
+
+      if (active) {
+        const badge = document.createElement('div');
+        badge.className = 'on-air-badge';
+        badge.innerHTML = '<span class="on-air-dot"></span>Al aire ahora';
+        card.appendChild(badge);
+      }
+    });
+  }
+
+  highlightCurrentShow();
+
+  // Re-evaluar cada minuto
+  setInterval(highlightCurrentShow, 60_000);
+</script>

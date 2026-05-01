@@ -1,0 +1,268 @@
+---
+// Hero.astro
+---
+
+<section class="hero" id="inicio">
+  <div class="hero-glow" aria-hidden="true"></div>
+
+  <div class="hero-inner">
+
+    <!-- Badge en vivo -->
+    <div class="badge-live">
+      <span class="dot"></span>
+      Transmitiendo en vivo
+    </div>
+
+    <!-- Referencia tipográfica al logo -->
+    <div class="hero-logo-type" aria-label="100 punto 1 FM">
+      <span class="h-num">100</span>
+      <span class="h-slash">/</span>
+      <span class="h-uno">uno</span>
+    </div>
+
+    <div class="hero-fm-row">
+      <span class="h-punto">Punto</span>
+      <span class="h-fm">FM</span>
+    </div>
+
+    <p class="hero-name">
+      <span>Santa Isabel</span> · Paso de los Toros · Est. 1995
+    </p>
+
+    <!-- Waveform animado -->
+    <div class="waveform" aria-hidden="true">
+      {Array.from({ length: 15 }).map((_, i) => (
+        <div class="bar" style={`--i: ${i}`}></div>
+      ))}
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-cta" id="hero-play-btn">
+      <span class="btn-tri"></span>
+      <span id="hero-btn-txt">Escuchar ahora</span>
+    </button>
+
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Grid de puntos */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--blue) 25%, transparent) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 40%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 600px;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--blue) 20%, transparent) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Badge */
+  .badge-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--red-dim);
+    border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
+    border-radius: 3px;
+    padding: 7px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red-bright);
+    margin-bottom: 2.4rem;
+  }
+
+  .dot {
+    display: block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--red-bright);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.2; transform: scale(0.6); }
+  }
+
+  /* Tipografía hero — espeja el logo */
+  .hero-logo-type {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.1rem;
+  }
+
+  .h-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4.5rem, 20vw, 12rem);
+    line-height: 0.82;
+    color: var(--text);
+  }
+
+  .h-slash {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 15vw, 9rem);
+    color: var(--red);
+    line-height: 0.82;
+    margin: 0 0.05em;
+  }
+
+  .h-uno {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 12vw, 7.5rem);
+    color: var(--red);
+    line-height: 0.82;
+    font-style: italic;
+  }
+
+  .hero-fm-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .h-punto {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(0.75rem, 2.5vw, 1.1rem);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .h-fm {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.2rem, 4vw, 2.4rem);
+    color: var(--blue);
+    letter-spacing: 0.2em;
+  }
+
+  .hero-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(0.95rem, 3vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.8rem;
+  }
+
+  .hero-name span { color: var(--blue-bright); }
+
+  /* Waveform */
+  .waveform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 64px;
+    margin: 2.8rem auto 0;
+  }
+
+  .bar {
+    width: 4px;
+    border-radius: 2px;
+    transform-origin: bottom;
+    animation: wave calc(0.9s + var(--i, 0) * 0.04s) ease-in-out infinite alternate;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  /* Azul/rojo alternados — referencia al logo */
+  .bar:nth-child(odd)  { background: var(--blue); }
+  .bar:nth-child(even) { background: var(--red); }
+
+  /* Alturas variadas para naturalidad */
+  .bar:nth-child(1)  { height: 14px } .bar:nth-child(2)  { height: 28px }
+  .bar:nth-child(3)  { height: 44px } .bar:nth-child(4)  { height: 58px }
+  .bar:nth-child(5)  { height: 64px } .bar:nth-child(6)  { height: 50px }
+  .bar:nth-child(7)  { height: 36px } .bar:nth-child(8)  { height: 56px }
+  .bar:nth-child(9)  { height: 64px } .bar:nth-child(10) { height: 48px }
+  .bar:nth-child(11) { height: 64px } .bar:nth-child(12) { height: 42px }
+  .bar:nth-child(13) { height: 54px } .bar:nth-child(14) { height: 30px }
+  .bar:nth-child(15) { height: 16px }
+
+  @keyframes wave {
+    0%   { transform: scaleY(0.25); opacity: 0.3; }
+    100% { transform: scaleY(1);    opacity: 1; }
+  }
+
+  /* CTA */
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    background: var(--blue);
+    color: #f0eeea;
+    border: none;
+    border-radius: 3px;
+    padding: 16px 40px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 2.8rem;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-cta:hover  { background: var(--blue-bright); transform: translateY(-2px); }
+  .btn-cta:active { transform: translateY(0); }
+
+  .btn-tri {
+    display: block;
+    width: 0; height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 12px solid #f0eeea;
+  }
+</style>
+
+<script>
+  // El botón del hero delega al player global
+  document.getElementById('hero-play-btn')?.addEventListener('click', () => {
+    window.__sifmPlay?.();
+  });
+
+  // Sincronizar texto del botón con estado del player
+  window.addEventListener('sifm:playing', () => {
+    const txt = document.getElementById('hero-btn-txt');
+    if (txt) txt.textContent = 'Pausar';
+  });
+
+  window.addEventListener('sifm:paused', () => {
+    const txt = document.getElementById('hero-btn-txt');
+    if (txt) txt.textContent = 'Escuchar ahora';
+  });
+</script>
