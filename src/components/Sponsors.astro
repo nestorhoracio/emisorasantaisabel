@@ -1,0 +1,162 @@
+---
+// Sponsors.astro
+
+const patrocinadores = [
+  {
+    nombre: 'Farmacia Central',
+    categoria: 'Salud',
+    url: 'https://www.google.com',
+    iniciales: 'FC',
+    color: 'blue',
+  },
+  {
+    nombre: 'Supermercado El Toro',
+    categoria: 'Alimentación',
+    url: 'https://www.google.com',
+    iniciales: 'ET',
+    color: 'red',
+  },
+  {
+    nombre: 'Automotora del Norte',
+    categoria: 'Automotriz',
+    url: 'https://www.google.com',
+    iniciales: 'AN',
+    color: 'blue',
+  },
+  {
+    nombre: 'Hotel Paso Real',
+    categoria: 'Turismo',
+    url: 'https://www.google.com',
+    iniciales: 'HP',
+    color: 'red',
+  },
+  {
+    nombre: 'Ferretería San José',
+    categoria: 'Construcción',
+    url: 'https://www.google.com',
+    iniciales: 'FS',
+    color: 'blue',
+  },
+  {
+    nombre: 'Clínica del Río',
+    categoria: 'Salud',
+    url: 'https://www.google.com',
+    iniciales: 'CR',
+    color: 'red',
+  },
+];
+---
+
+<section class="section" id="patrocinadores">
+  <span class="sec-label">Nuestros patrocinadores</span>
+  <h2 class="sec-title">Quienes nos<br>acompañan</h2>
+  <p class="sec-body">
+    Las empresas que hacen posible que Santa Isabel FM siga siendo la radio de Paso de los Toros.
+    <a href="mailto:santaisabelfm@vera.com.uy" class="link-auspicios">¿Querés ser patrocinador?</a>
+  </p>
+
+  <div class="sponsors-grid">
+    {patrocinadores.map((p) => (
+      <a href={p.url} target="_blank" rel="noopener noreferrer" class="sponsor-card">
+        <div class={`sponsor-logo sponsor-${p.color}`}>
+          {p.iniciales}
+        </div>
+        <div class="sponsor-info">
+          <p class="sponsor-nombre">{p.nombre}</p>
+          <p class="sponsor-cat">{p.categoria}</p>
+        </div>
+        <span class="sponsor-arrow">→</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .link-auspicios {
+    display: inline-block;
+    margin-top: .5rem;
+    color: var(--blue-bright);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .sponsors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--faint);
+    border: 1px solid var(--faint);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2.5rem;
+  }
+
+  .sponsor-card {
+    background: var(--surface);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .sponsor-card:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .sponsor-logo {
+    width: 52px; height: 52px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+
+  .sponsor-blue {
+    background: var(--blue-dim);
+    color: var(--blue-bright);
+    border: 2px solid var(--blue);
+  }
+
+  .sponsor-red {
+    background: var(--red-dim);
+    color: var(--red-bright);
+    border: 2px solid var(--red);
+  }
+
+  .sponsor-info { flex: 1; min-width: 0; }
+
+  .sponsor-nombre {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .sponsor-cat {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .sponsor-arrow {
+    color: var(--text-faint);
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .sponsor-card:hover .sponsor-arrow {
+    color: var(--blue-bright);
+    transform: translateX(3px);
+  }
+</style>
