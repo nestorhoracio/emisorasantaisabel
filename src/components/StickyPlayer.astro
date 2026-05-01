@@ -10,7 +10,10 @@ const STATUS = 'https://emisiones.com.uy:8166/status-json.xsl';
   <a href="/" class="pl-logo" aria-label="Inicio">
     <img src="/logo.jpg" alt="100.1 FM" />
   </a>
-
+<div class="pl-brand">
+  <span class="pl-num">100.<em>uno</em></span>
+  <span class="pl-sub">Santa Isabel FM</span>
+</div>
   <div class="pl-sep"></div>
 
   <!-- Info pista -->
@@ -94,7 +97,33 @@ const STATUS = 'https://emisiones.com.uy:8166/status-json.xsl';
     background: var(--surface-3);
     flex-shrink: 0;
   }
+.pl-brand {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
 
+.pl-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.pl-num em {
+  color: var(--red);
+  font-style: italic;
+}
+
+.pl-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
   /* Info */
   .pl-info {
     flex: 1;
