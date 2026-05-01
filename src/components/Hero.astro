@@ -249,6 +249,11 @@
 </style>
 
 <script>
+  declare global {
+  interface Window {
+    __sifmPlay?: () => void;
+  }
+}
   // El botón del hero delega al player global
   document.getElementById('hero-play-btn')?.addEventListener('click', () => {
     window.__sifmPlay?.();
