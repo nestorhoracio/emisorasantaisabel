@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import StickyPlayer from '../components/StickyPlayer.astro';
 import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
 
 export interface Props {
   title?: string;
@@ -43,6 +44,7 @@ const {
 
   <body>
     <Header />
+    <ThemeToggle />
     <main>
       <slot />
     </main>

@@ -1,0 +1,58 @@
+---
+// ThemeToggle.astro — botón flotante fijo esquina superior derecha
+---
+
+<button id="theme-btn" class="theme-toggle" aria-label="Cambiar tema">
+  <span id="theme-icon">☀</span>
+</button>
+
+<style>
+  .theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 500;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--faint);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+
+  .theme-toggle:hover {
+    background: var(--surface-2);
+    border-color: var(--blue);
+    transform: scale(1.08);
+  }
+</style>
+
+<script>
+  declare global {
+    interface Window { __sifmTheme?: () => void; }
+  }
+
+  const btn  = document.getElementById('theme-btn')!;
+  const icon = document.getElementById('theme-icon')!;
+  const html = document.documentElement;
+
+  function applyTheme(theme: string) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('sifm-theme', theme);
+    icon.textContent = theme === 'dark' ? '☀' : '☽';
+  }
+
+  applyTheme(html.getAttribute('data-theme') || 'dark');
+
+  btn.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+</script>
