@@ -1,0 +1,310 @@
+---
+const WA_NUMBER = '59899474094';
+---
+
+<button class="wa-fab" id="wa-fab" aria-label="Contactar a la radio">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.522 5.847L.057 23.882l6.197-1.624A11.937 11.937 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.371l-.359-.213-3.68.965.982-3.586-.234-.371A9.818 9.818 0 1112 21.818z"/>
+  </svg>
+</button>
+
+<div class="wa-window" id="wa-window" aria-hidden="true">
+  <div class="wa-header">
+    <div class="wa-header-info">
+      <img src="/logo.jpg" alt="Santa Isabel FM" class="wa-avatar" />
+      <div>
+        <p class="wa-title">Santa Isabel FM</p>
+        <p class="wa-subtitle">100.1 · Paso de los Toros</p>
+      </div>
+    </div>
+    <button class="wa-close" id="wa-close" aria-label="Cerrar">✕</button>
+  </div>
+
+  <div class="wa-messages" id="wa-messages"></div>
+
+  <div class="wa-input-row">
+    <input
+      type="text"
+      class="wa-input"
+      id="wa-input"
+      placeholder="Escribí tu mensaje..."
+      autocomplete="off"
+    />
+    <button class="wa-send" id="wa-send" aria-label="Enviar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .wa-fab {
+    position: fixed;
+    bottom: calc(var(--player-h) + 1.2rem);
+    right: 1.2rem;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    z-index: 400;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .wa-fab:hover { transform: scale(1.08); }
+  .wa-fab.open  { transform: scale(0.9); }
+
+  .wa-window {
+    position: fixed;
+    bottom: calc(var(--player-h) + 4.5rem);
+    right: 1.2rem;
+    width: 320px;
+    max-height: 480px;
+    background: var(--surface);
+    border: 1px solid var(--faint);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 400;
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+
+  .wa-window.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  .wa-header {
+    background: var(--blue);
+    padding: .85rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .wa-header-info { display: flex; align-items: center; gap: .7rem; }
+
+  .wa-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,.3);
+  }
+
+  .wa-title { font-weight: 600; font-size: 14px; color: #fff; line-height: 1.2; }
+  .wa-subtitle { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: rgba(255,255,255,.7); }
+
+  .wa-close {
+    background: transparent; border: none;
+    color: rgba(255,255,255,.8); font-size: 16px;
+    cursor: pointer; padding: 4px; line-height: 1;
+  }
+
+  .wa-close:hover { color: #fff; }
+
+  .wa-messages {
+    flex: 1; overflow-y: auto;
+    padding: 1rem;
+    display: flex; flex-direction: column;
+    gap: .65rem; min-height: 200px;
+  }
+
+  .msg {
+    max-width: 82%; padding: .55rem .85rem;
+    border-radius: 12px; font-size: 13px; line-height: 1.5;
+  }
+
+  .msg-bot {
+    background: var(--surface-2); color: var(--text);
+    border-bottom-left-radius: 3px; align-self: flex-start;
+  }
+
+  .msg-user {
+    background: var(--blue); color: #fff;
+    border-bottom-right-radius: 3px; align-self: flex-end;
+  }
+
+  .msg-typing { background: var(--surface-2); align-self: flex-start; padding: .6rem .85rem; }
+
+  .typing-dots { display: flex; gap: 4px; align-items: center; }
+
+  .typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-muted);
+    animation: tdot 1.2s ease-in-out infinite;
+  }
+
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes tdot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30%            { transform: translateY(-5px); opacity: 1; }
+  }
+
+  .btn-wa-send {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #25d366; color: #fff; border: none;
+    border-radius: 8px; padding: 10px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer;
+    margin-top: 6px; width: 100%; justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .btn-wa-send:hover { background: #1da851; }
+
+  .wa-input-row {
+    display: flex; gap: .5rem; padding: .75rem;
+    border-top: 1px solid var(--faint); flex-shrink: 0;
+  }
+
+  .wa-input {
+    flex: 1; background: var(--surface-2);
+    border: 1px solid var(--faint); border-radius: 20px;
+    padding: .5rem 1rem; font-size: 13px; color: var(--text);
+    outline: none; font-family: 'Barlow', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  .wa-input:focus { border-color: var(--blue); }
+  .wa-input::placeholder { color: var(--text-faint); }
+
+  .wa-send {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--blue); color: #fff; border: none;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; transition: background 0.2s;
+  }
+
+  .wa-send:hover { background: var(--blue-bright); }
+
+  @media (max-width: 380px) {
+    .wa-window { width: calc(100vw - 2rem); right: 1rem; }
+  }
+</style>
+
+<script define:vars={{ WA_NUMBER }}>
+  const fab      = document.getElementById('wa-fab');
+  const window_  = document.getElementById('wa-window');
+  const closeBtn = document.getElementById('wa-close');
+  const input    = document.getElementById('wa-input');
+  const sendBtn  = document.getElementById('wa-send');
+  const msgs     = document.getElementById('wa-messages');
+
+  let isOpen = false, isLoading = false, started = false, history = [];
+
+  function toggleChat() {
+    isOpen = !isOpen;
+    window_.classList.toggle('open', isOpen);
+    window_.setAttribute('aria-hidden', String(!isOpen));
+    fab.classList.toggle('open', isOpen);
+    if (isOpen && !started) { started = true; iniciarChat(); }
+    if (isOpen) setTimeout(() => input.focus(), 300);
+  }
+
+  fab.addEventListener('click', toggleChat);
+  closeBtn.addEventListener('click', toggleChat);
+
+  function addMsg(text, role) {
+    const div = document.createElement('div');
+    div.className = `msg msg-${role === 'user' ? 'user' : 'bot'}`;
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg msg-typing';
+    div.id = 'typing-indicator';
+    div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function hideTyping() { document.getElementById('typing-indicator')?.remove(); }
+
+  function addWAButton(mensaje) {
+    const encoded = encodeURIComponent(mensaje);
+    const url = `https://wa.me/${WA_NUMBER}?text=${encoded}`;
+    const btn = document.createElement('button');
+    btn.className = 'btn-wa-send';
+    btn.innerHTML = '📲 Enviar por WhatsApp';
+    btn.onclick = () => window.open(url, '_blank');
+    msgs.appendChild(btn);
+    msgs.scrollTop = msgs.scrollHeight;
+    input.disabled = true;
+    sendBtn.disabled = true;
+  }
+
+  async function callClaude(userMsg) {
+    if (userMsg) {
+      history.push({ role: 'user', content: userMsg });
+      addMsg(userMsg, 'user');
+    }
+    isLoading = true;
+    showTyping();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      const data = await res.json();
+      hideTyping();
+
+      const fullText = data.content
+        .filter(b => b.type === 'text')
+        .map(b => b.text)
+        .join('');
+
+      const match = fullText.match(/<MENSAJE_WHATSAPP>([\s\S]*?)<\/MENSAJE_WHATSAPP>/);
+
+      if (match) {
+        const mensajeFinal = match[1].trim();
+        const textoDisplay = fullText.replace(/<MENSAJE_WHATSAPP>[\s\S]*?<\/MENSAJE_WHATSAPP>/, '').trim();
+        if (textoDisplay) addMsg(textoDisplay, 'assistant');
+        history.push({ role: 'assistant', content: fullText });
+        addWAButton(mensajeFinal);
+      } else {
+        addMsg(fullText, 'assistant');
+        history.push({ role: 'assistant', content: fullText });
+      }
+    } catch (err) {
+      hideTyping();
+      addMsg('Ups, algo falló. Intentá de nuevo.', 'assistant');
+    }
+
+    isLoading = false;
+  }
+
+  function iniciarChat() { callClaude(null); }
+
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text || isLoading) return;
+    input.value = '';
+    callClaude(text);
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+</script>
