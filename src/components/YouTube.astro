@@ -182,3 +182,25 @@ const VIDEO_ID = 'xnc3l_Ko9u4';
 
   .btn-yt:hover { background: var(--red-bright); text-decoration: none; }
 </style>
+<script define:vars={{ VIDEO_ID }}>
+  const DEFAULT_VIDEO = VIDEO_ID;
+
+  async function checkLive() {
+    try {
+      const res  = await fetch('/.netlify/functions/youtube-live');
+      const data = await res.json();
+
+      const iframe = document.querySelector('.yt-embed-container iframe');
+      if (!iframe) return;
+
+      if (data.isLive && data.videoId) {
+        iframe.src = `https://www.youtube.com/embed/${data.videoId}?autoplay=1&rel=0`;
+      } else {
+        iframe.src = `https://www.youtube.com/embed/${DEFAULT_VIDEO}?rel=0&modestbranding=1`;
+      }
+    } catch {}
+  }
+
+  checkLive();
+  setInterval(checkLive, 15 * 60 * 1000); // cada 15 minutos
+</script>
