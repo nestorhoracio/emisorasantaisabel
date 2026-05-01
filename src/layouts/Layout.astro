@@ -41,7 +41,33 @@ const {
       document.documentElement.setAttribute('data-theme', saved);
     </script>
   </head>
+<!-- Barra de progreso de scroll -->
+<div id="scroll-bar"></div>
 
+<style is:global>
+  #scroll-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+    z-index: 999;
+    transition: width 0.1s linear;
+  }
+</style>
+
+<script>
+  const bar = document.getElementById('scroll-bar');
+
+window.addEventListener('scroll', () => {
+  if (!bar) return;
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (scrollTop / docHeight) * 100;
+  bar.style.width = progress + '%';
+});
+</script>
   <body>
     <Header />
     <ThemeToggle />
