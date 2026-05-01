@@ -154,23 +154,3 @@
   }
 </style>
 
-<script>
-  // ── Theme switcher ──
-  const btn  = document.getElementById('theme-btn')!;
-  const icon = document.getElementById('theme-icon')!;
-  const html = document.documentElement;
-
-  function applyTheme(theme: string) {
-    html.setAttribute('data-theme', theme);
-    localStorage.setItem('sifm-theme', theme);
-    icon.textContent = theme === 'dark' ? '☀' : '☽';
-  }
-
-  // Init icon desde el tema actual (ya seteado en Layout)
-  applyTheme(html.getAttribute('data-theme') || 'dark');
-
-  btn.addEventListener('click', () => {
-    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-  });
-</script>
