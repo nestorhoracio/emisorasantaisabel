@@ -30,12 +30,11 @@
 
 /* ── Tema claro ── */
 [data-theme="light"] {
-  --bg: #eae8e2;
-  --surface: #f2f0ea;
-  --surface-2: #e2dfd6;
-  --surface-3: #e2dfd6;
-  --faint: #d4d0c8;
-
+  --bg: #d8d4cc;
+  --surface: #e2ddd6;
+  --surface-2: #ccc8c0;
+  --surface-3: #c0bbb2;
+  --faint: #b0aba2;
   --text: #0e1628;
   --text-muted: #556080;
   --text-faint: #a0aabf;
