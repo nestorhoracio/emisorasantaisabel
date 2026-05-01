@@ -1,10 +1,9 @@
-// netlify/functions/chat.js
-export default async (req) => {
-    if (req.method !== 'POST') {
-        return new Response('Method not allowed', { status: 405 });
+exports.handler = async (event) => {
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: 'Method not allowed' };
     }
 
-    const { messages } = await req.json();
+    const { messages } = JSON.parse(event.body);
 
     const programas = [
         { from: 6, to: 9, name: 'Mañana Total', host: 'Horacio Costa' },
@@ -25,10 +24,10 @@ export default async (req) => {
 
     const programaActual = programas.find(p => h >= p.from && h < p.to);
     const contextoAire = programaActual
-        ? `Ahora mismo está al aire el programa "${programaActual.name}" conducido por ${programaActual.host}.`
-        : 'En este momento no hay un programa específico al aire (madrugada).';
+        ? `Ahora mismo está al aire "${programaActual.name}" conducido por ${programaActual.host}.`
+        : 'En este momento es madrugada, no hay programa específico al aire.';
 
-    const systemPrompt = `Sos el asistente virtual de Santa Isabel FM, una radio local uruguaya que transmite en el 100.1 FM desde Paso de los Toros, Uruguay, desde 1995.
+    const systemPrompt = `Sos el asistente virtual de Santa Isabel FM, radio uruguaya en el 100.1 FM desde Paso de los Toros, desde 1995.
 
 CONTEXTO ACTUAL:
 - Día: ${dia}
@@ -36,28 +35,23 @@ CONTEXTO ACTUAL:
 - ${contextoAire}
 
 TU ROL:
-Ayudás a los oyentes a enviar mensajes a la radio de forma amigable y cálida. Seguís este flujo en orden:
-
+Ayudás a los oyentes a enviar mensajes a la radio. Seguís este flujo en orden:
 1. Saludás calurosamente y preguntás el nombre del oyente
-2. Preguntás qué quiere hacer: saludar a alguien, dedicar una canción, avisar que está en sintonía, o hacer una consulta
-3. Según la respuesta:
-   - Si saluda → preguntás a quién quiere saludar
-   - Si dedica canción → preguntás qué canción y a quién
-   - Si está en sintonía → pasás al siguiente paso
-   - Si consulta → escuchás la consulta
-4. Preguntás desde qué ciudad está escuchando
-5. Cuando tenés toda la info, generás el mensaje final entre etiquetas <MENSAJE_WHATSAPP> y </MENSAJE_WHATSAPP>:
+2. Preguntás qué quiere hacer: saludar a alguien, dedicar una canción, avisar que está en sintonía, o consulta
+3. Según respuesta: si saluda → preguntás a quién. Si dedica canción → preguntás cuál y a quién. Si consulta → escuchás.
+4. Preguntás desde qué ciudad escucha
+5. Con toda la info generás el mensaje entre etiquetas:
 
 <MENSAJE_WHATSAPP>
-[Santa Isabel FM · ${dia} ${horaStr} · ${programaActual?.name || 'En vivo'}]
-{contenido del mensaje personalizado y cálido, máximo 3 líneas}
+[Santa Isabel FM · ${dia} ${horaStr} · ${programaActual ? programaActual.name : 'En vivo'}]
+{mensaje personalizado y cálido, máximo 3 líneas}
 </MENSAJE_WHATSAPP>
 
 REGLAS:
-- Hablás en español rioplatense (vos, che, etc)
-- Sos cálido, breve y simpático — no más de 2 oraciones por respuesta
-- Nunca saltés pasos del flujo
-- Una vez que generás el MENSAJE_WHATSAPP, no seguís conversando`;
+- Español rioplatense (vos, che)
+- Cálido, breve — máximo 2 oraciones por respuesta
+- No saltés pasos
+- Una vez generado el MENSAJE_WHATSAPP no seguís conversando`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -76,10 +70,9 @@ REGLAS:
 
     const data = await response.json();
 
-    return new Response(JSON.stringify(data), {
-        status: 200,
+    return {
+        statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-    });
+        body: JSON.stringify(data),
+    };
 };
-
-export const config = { path: '/api/chat' };

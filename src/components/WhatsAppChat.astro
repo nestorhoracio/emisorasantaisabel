@@ -262,7 +262,7 @@ const WA_NUMBER = '59899474094';
     showTyping();
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history }),
