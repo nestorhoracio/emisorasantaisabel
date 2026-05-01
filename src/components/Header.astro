@@ -13,11 +13,28 @@
     <!-- Nav -->
     <nav class="nav" aria-label="Navegación principal">
       <a href="#programacion" class="nav-link">Programación</a>
+      <a href="#equipo"          class="nav-link">Equipo</a>
+<a href="#patrocinadores"  class="nav-link">Patrocinadores</a>
       <a href="#historia"     class="nav-link">Historia</a>
       <a href="#videos"       class="nav-link">Videos</a>
       <a href="#contacto"     class="nav-link">Contacto</a>
     </nav>
+<!-- Botón hamburguesa -->
+<button class="hamburger" id="hamburger" aria-label="Menú">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
+<!-- Menú mobile -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#programacion" class="mobile-link">Programación</a>
+  <a href="#historia"     class="mobile-link">Historia</a>
+  <a href="#equipo"       class="mobile-link">Equipo</a>
+  <a href="#videos"       class="mobile-link">Videos</a>
+  <a href="#patrocinadores" class="mobile-link">Patrocinadores</a>
+  <a href="#contacto"     class="mobile-link">Contacto</a>
+</div>
     <!-- Controles: tema + escuchar -->
     <div class="header-actions">
 
@@ -152,5 +169,77 @@
     .nav { display: none; }
     .btn-listen { display: none; }
   }
-</style>
+  /* Hamburguesa */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: .5rem;
+}
 
+.hamburger span {
+  display: block;
+  width: 22px; height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+/* Menú mobile */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: var(--header-h);
+  left: 0; right: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--faint);
+  flex-direction: column;
+  padding: 1rem 0;
+  z-index: 199;
+}
+
+.mobile-menu.open { display: flex; }
+
+.mobile-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: .85rem 1.5rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--surface-2);
+  transition: color 0.2s, background 0.2s;
+}
+
+.mobile-link:hover {
+  color: var(--text);
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .hamburger { display: flex; }
+}
+</style>
+<script>
+// Menú mobile
+const hamburger   = document.getElementById('hamburger')!;
+const mobileMenu  = document.getElementById('mobile-menu')!;
+
+hamburger.addEventListener('click', () => {
+  mobileMenu.classList.toggle('open');
+});
+
+// Cerrar al hacer click en un link
+mobileMenu.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+  });
+});
+</script>
