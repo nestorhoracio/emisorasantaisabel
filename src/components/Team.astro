@@ -1,0 +1,140 @@
+---
+// Team.astro
+
+const equipo = [
+  {
+    nombre: 'Horacio Costa',
+    programa: 'Mañana Total',
+    horario: 'Lun–Vie · 06:00 a 09:00',
+    iniciales: 'HC',
+    color: 'blue',
+  },
+  {
+    nombre: 'Leonardo Rodríguez',
+    programa: 'La Señal Camino',
+    horario: 'Lun–Dom · 09:00 a 12:00',
+    iniciales: 'LR',
+    color: 'red',
+  },
+  {
+    nombre: 'Valentina Sosa',
+    programa: 'La Tarde Santa Isabel',
+    horario: 'Lun–Dom · 12:00 a 15:00',
+    iniciales: 'VS',
+    color: 'blue',
+  },
+  {
+    nombre: 'Martín Ibarra',
+    programa: 'Tarde Libre',
+    horario: 'Lun–Dom · 15:00 a 18:00',
+    iniciales: 'MI',
+    color: 'red',
+  },
+  {
+    nombre: 'Carolina Pérez',
+    programa: 'El Cierre',
+    horario: 'Lun–Vie · 18:00 a 20:00',
+    iniciales: 'CP',
+    color: 'blue',
+  },
+  {
+    nombre: 'Diego Núñez',
+    programa: 'Noche de Verano',
+    horario: 'Lun–Dom · 20:00 a 24:00',
+    iniciales: 'DN',
+    color: 'red',
+  },
+];
+---
+
+<section class="section" id="equipo">
+  <span class="sec-label">Quiénes somos</span>
+  <h2 class="sec-title">El equipo</h2>
+  <p class="sec-body">Las voces que acompañan a Paso de los Toros cada día.</p>
+
+  <div class="team-grid">
+    {equipo.map((p) => (
+      <div class="team-card">
+        <div class={`avatar avatar-${p.color}`}>
+          {p.iniciales}
+        </div>
+        <div class="team-info">
+          <p class="team-nombre">{p.nombre}</p>
+          <p class="team-programa">{p.programa}</p>
+          <p class="team-horario">{p.horario}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--faint);
+    border: 1px solid var(--faint);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2.5rem;
+  }
+
+  .team-card {
+    background: var(--surface);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: background 0.2s;
+  }
+
+  .team-card:hover { background: var(--surface-2); }
+
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+
+  .avatar-blue {
+    background: var(--blue-dim);
+    color: var(--blue-bright);
+    border: 2px solid var(--blue);
+  }
+
+  .avatar-red {
+    background: var(--red-dim);
+    color: var(--red-bright);
+    border: 2px solid var(--red);
+  }
+
+  .team-nombre {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .team-programa {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue-bright);
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+
+  .team-horario {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.08em;
+  }
+</style>
