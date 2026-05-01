@@ -4,7 +4,9 @@ exports.handler = async (event) => {
     }
 
     const { messages } = JSON.parse(event.body);
-
+    const mensajesConInicio = messages.length === 0
+        ? [{ role: 'user', content: 'inicio' }]
+        : messages;
     const programas = [
         { from: 6, to: 9, name: 'Mañana Total', host: 'Horacio Costa' },
         { from: 9, to: 12, name: 'La Señal Camino', host: 'Leonardo Rodríguez' },
@@ -64,7 +66,7 @@ REGLAS:
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 1000,
             system: systemPrompt,
-            messages,
+            messages: mensajesConInicio,
         }),
     });
 
