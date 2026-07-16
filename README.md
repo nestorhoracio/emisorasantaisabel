@@ -1,6 +1,8 @@
 # Santa Isabel FM — Sitio Web
 ## Stack: Astro + Netlify
 
+> Estado actual, changelog y próximos pasos: ver [ROADMAP.md](./ROADMAP.md)
+
 ---
 
 ## Setup inicial (una sola vez)
@@ -117,3 +119,5 @@ const STATUS = '/api/nowplaying';
 ---
 
 *Proyecto: Santa Isabel FM — NH Freelance · Mayo 2026*
+
+Para el detalle de cambios realizados y lo que sigue, ver [ROADMAP.md](./ROADMAP.md).
