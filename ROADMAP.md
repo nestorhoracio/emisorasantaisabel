@@ -28,6 +28,8 @@
 
 ## Changelog resumido
 
+- **2026-09-24** — `youtube-live.js` pasó de CommonJS a ESM: el deploy de `688fc62` falló en Netlify por esa function (CommonJS en un proyecto `"type": "module"`). De paso se descubrió que las functions CommonJS respondían 502 en producción desde julio: el chat y la detección de YouTube en vivo no andaban. Detalle en CLAUDE.md → Gotchas.
+
 - **2026-09-24** — Se sacó del `systemPrompt` de `chat.js` la línea suelta `Guardá, commitá:` (entre los pasos 1 y 2), colada por error en `636c0ef` (2026-05-01). El resto del prompt, sin cambios.
 - **2026-09-24** — `/api/chat` protegido: `chat.js` pasó a Netlify Functions v2 con validación de origen, forma y largo del historial, `max_tokens` 500, errores genéricos y rate limit nativo (el endpoint estaba abierto sin límites y usa la API key de NH). Se sacó del widget el número personal de NH, que había quedado de las pruebas.
 - Scaffold inicial del proyecto Astro + estructura de secciones

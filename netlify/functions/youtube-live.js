@@ -1,4 +1,6 @@
-exports.handler = async () => {
+// ESM (no `exports.handler`): package.json declara "type": "module" y Netlify corta el build
+// si una function es CommonJS — y aunque no lo cortara, Node no la podría cargar (daba 502).
+export const handler = async () => {
     const CHANNEL_ID = 'UCAV2W1qUuql7qM_Hqg3eMww';
     const API_KEY = process.env.YOUTUBE_API_KEY;
 

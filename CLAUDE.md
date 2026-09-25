@@ -7,7 +7,7 @@ Sitio web de Santa Isabel FM (100.1, Paso de los Toros, Uruguay). Radio en vivo 
 - **Astro 6** (SSG puro, sin framework de UI — no hay React/Vue/Svelte)
 - CSS vanilla con custom properties para theming (`src/styles/global.css`)
 - JS vanilla embebido en `<script>` dentro de los `.astro` (sin librerías de estado)
-- **Netlify**: hosting + funciones serverless (`netlify/functions/`): `chat.js` es Functions v2 (ESM, ruta `/api/chat`, desde 2026-09-24); `youtube-live.js` sigue en v1 (CommonJS, `/.netlify/functions/youtube-live`)
+- **Netlify**: hosting + funciones serverless (`netlify/functions/`): `chat.js` es Functions v2 (ESM, ruta `/api/chat`, desde 2026-09-24); `youtube-live.js` sigue en v1 pero en ESM (`export const handler`, `/.netlify/functions/youtube-live`). **Nunca CommonJS** (`exports.handler`) en `netlify/functions/`: ver Gotchas
 - Sin base de datos ni CMS — todo el contenido está hardcodeado en los componentes
 
 ## Estructura
@@ -27,6 +27,10 @@ Sitio web de Santa Isabel FM (100.1, Paso de los Toros, Uruguay). Radio en vivo 
 - Tipografía: `Bebas Neue` (títulos), `Barlow` (cuerpo), `Barlow Condensed` (labels/uppercase) — cargadas desde Google Fonts en `Layout.astro`
 - Tono de copy: español rioplatense/uruguayo cálido y profesional, sin modismos muy informales (ver `netlify/functions/chat.js`, ajustado explícitamente en commit `636c0ef`)
 - Cada componente lleva su propio `<style>` scoped — no hay CSS global por componente
+
+## Gotchas
+
+- **Una function CommonJS en un proyecto `"type": "module"` rompe el deploy — y antes rompía la function en silencio** (2026-09-24): el deploy del commit `688fc62` falló en Netlify ("Build script returned non-zero exit code: 2") aunque `npm run build` y `netlify build --offline` pasaban en local. Causa raíz: `youtube-live.js` usaba `exports.handler`, pero `package.json` declara `"type": "module"`, así que Node lo trata como ESM y no lo puede cargar. Netlify ahora corta el build por eso (mensaje: "The function file ... is a CommonJS module, but the closest 'package.json' declares "type": "module""); en julio lo había publicado igual, y las functions CommonJS respondían **502** en producción — el chat y la detección de YouTube en vivo estaban rotos desde entonces. Confirmado leyendo el log real del build con `netlify logs --source deploy --follow` sobre un rebuild, y con `curl` (`/.netlify/functions/chat` → 502). Patrón correcto: toda function en ESM (`export default` en v2, o `export const handler` en v1); si en local el build pasa pero en Netlify falla, leer el log real antes de suponer.
 
 ## No tocar sin avisar
 
