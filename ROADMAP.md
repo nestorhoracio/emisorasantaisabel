@@ -25,10 +25,10 @@
 ## Próximo / Pendiente
 
 - Si aprueban el presupuesto: cargar el número de WhatsApp de la radio en `WA_NUMBER` (`WhatsAppChat.astro`, hoy vacío a propósito) y autohospedar las fuentes (hoy Google Fonts por CDN).
-- Confirmar con NH si se saca la línea suelta `Guardá, commitá:` del `systemPrompt` de `chat.js`.
 
 ## Changelog resumido
 
+- **2026-09-24** — Se sacó del `systemPrompt` de `chat.js` la línea suelta `Guardá, commitá:` (entre los pasos 1 y 2), colada por error en `636c0ef` (2026-05-01). El resto del prompt, sin cambios.
 - **2026-09-24** — `/api/chat` protegido: `chat.js` pasó a Netlify Functions v2 con validación de origen, forma y largo del historial, `max_tokens` 500, errores genéricos y rate limit nativo (el endpoint estaba abierto sin límites y usa la API key de NH). Se sacó del widget el número personal de NH, que había quedado de las pruebas.
 - Scaffold inicial del proyecto Astro + estructura de secciones
 - Video de YouTube destacado → channel ID real → detección de vivo automática
