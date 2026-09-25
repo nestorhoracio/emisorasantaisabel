@@ -15,12 +15,11 @@
 - Formulario de contacto vía Web3Forms
 - Nav completa + menú mobile (hamburguesa)
 - Ajustes de alineación del hero (punto decorativo "100.uno")
-- Deploy en Netlify, dominio santaisabelfm.com.uy
+- Deploy en Netlify: **https://emisorasantaisabel.netlify.app** (auto-deploy desde `main`). `santaisabelfm.com.uy` es el sitio actual de la radio (servidor Apache, otro hosting) — este proyecto todavía no está conectado a ese dominio
 
 ## En curso
 
 - Proyecto a medio camino: el cliente todavía no aprobó el presupuesto (2026-09-24).
-- **Pendiente de verificar en producción**: que el widget responda en el sitio publicado con la nueva ruta `/api/chat`, y el rate limit (solo se activa en un deploy real).
 
 ## Próximo / Pendiente
 
@@ -31,7 +30,7 @@
 - **2026-09-24** — `youtube-live.js` pasó de CommonJS a ESM: el deploy de `688fc62` falló en Netlify por esa function (CommonJS en un proyecto `"type": "module"`). De paso se descubrió que las functions CommonJS respondían 502 en producción desde julio: el chat y la detección de YouTube en vivo no andaban. Detalle en CLAUDE.md → Gotchas.
 
 - **2026-09-24** — Se sacó del `systemPrompt` de `chat.js` la línea suelta `Guardá, commitá:` (entre los pasos 1 y 2), colada por error en `636c0ef` (2026-05-01). El resto del prompt, sin cambios.
-- **2026-09-24** — `/api/chat` protegido: `chat.js` pasó a Netlify Functions v2 con validación de origen, forma y largo del historial, `max_tokens` 500, errores genéricos y rate limit nativo (el endpoint estaba abierto sin límites y usa la API key de NH). Se sacó del widget el número personal de NH, que había quedado de las pruebas.
+- **2026-09-24** — `/api/chat` protegido: `chat.js` pasó a Netlify Functions v2 con validación de origen, forma y largo del historial, `max_tokens` 500, errores genéricos y rate limit nativo (el endpoint estaba abierto sin límites y usa la API key de NH). Se sacó del widget el número personal de NH, que había quedado de las pruebas. Verificado en producción (después del arreglo de `youtube-live.js`): chat respondiendo, origen ajeno → 403, rate limit activo (429 después del umbral, con la demora de hasta 10 s que documenta Netlify), y `youtube-live` de nuevo en 200.
 - Scaffold inicial del proyecto Astro + estructura de secciones
 - Video de YouTube destacado → channel ID real → detección de vivo automática
 - Toggle de tema + ajustes de paleta en modo claro
