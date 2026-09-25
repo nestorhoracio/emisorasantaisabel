@@ -1,5 +1,7 @@
 ---
-const WA_NUMBER = '59899474094';
+// PENDIENTE: número de WhatsApp de la radio, a confirmar cuando se apruebe el presupuesto.
+// Mientras esté vacío, wa.me abre WhatsApp con el mensaje escrito y el oyente elige el contacto.
+const WA_NUMBER = '';
 ---
 
 <button class="wa-fab" id="wa-fab" aria-label="Contactar a la radio">
@@ -267,11 +269,21 @@ const WA_NUMBER = '59899474094';
     showTyping();
 
     try {
-      const res = await fetch('/.netlify/functions/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history }),
       });
+
+      if (!res.ok) {
+        // 429 = rate limit de Netlify (netlify/functions/chat.js), no viene en JSON
+        hideTyping();
+        addMsg(res.status === 429
+          ? 'Recibimos muchos mensajes seguidos. Esperá un par de minutos y probá de nuevo.'
+          : 'Ups, algo falló. Intentá de nuevo.', 'assistant');
+        isLoading = false;
+        return;
+      }
 
       const data = await res.json();
       hideTyping();

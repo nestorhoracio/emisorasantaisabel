@@ -7,7 +7,7 @@ Sitio web de Santa Isabel FM (100.1, Paso de los Toros, Uruguay). Radio en vivo 
 - **Astro 6** (SSG puro, sin framework de UI — no hay React/Vue/Svelte)
 - CSS vanilla con custom properties para theming (`src/styles/global.css`)
 - JS vanilla embebido en `<script>` dentro de los `.astro` (sin librerías de estado)
-- **Netlify**: hosting + funciones serverless (`netlify/functions/`, CommonJS)
+- **Netlify**: hosting + funciones serverless (`netlify/functions/`): `chat.js` es Functions v2 (ESM, ruta `/api/chat`, desde 2026-09-24); `youtube-live.js` sigue en v1 (CommonJS, `/.netlify/functions/youtube-live`)
 - Sin base de datos ni CMS — todo el contenido está hardcodeado en los componentes
 
 ## Estructura
@@ -16,7 +16,7 @@ Sitio web de Santa Isabel FM (100.1, Paso de los Toros, Uruguay). Radio en vivo 
 - `src/layouts/Layout.astro` — head, fuentes, theme script, scroll bar, Header/Player globales
 - `src/components/` — un componente por sección: `Header`, `Hero`, `StickyPlayer`, `Schedule`, `Timeline`, `Team`, `Sponsors`, `YouTube`, `Contact`, `ThemeToggle`, `WhatsAppChat`
 - `src/styles/global.css` — design tokens (paleta azul/rojo del logo, dark/light) + reset + tipografía base
-- `netlify/functions/chat.js` — proxy a la API de Claude (Haiku) para el widget de WhatsApp
+- `netlify/functions/chat.js` — proxy protegido a la API de Claude (Haiku) para el widget de WhatsApp (`/api/chat`)
 - `netlify/functions/youtube-live.js` — detecta si el canal de YouTube está en vivo (YouTube Data API)
 - `public/logo.jpg` — logo, usado por Header/Player/favicon
 
@@ -30,7 +30,9 @@ Sitio web de Santa Isabel FM (100.1, Paso de los Toros, Uruguay). Radio en vivo 
 
 ## No tocar sin avisar
 
-- `netlify/functions/chat.js`: el `systemPrompt` (tono, flujo de preguntas) fue afinado a mano en varias iteraciones — no reescribir el flujo sin confirmar con el usuario
+- `netlify/functions/chat.js`: el `systemPrompt` (tono, flujo de preguntas) fue afinado a mano en varias iteraciones — no reescribir el flujo sin confirmar con el usuario. Ojo: tiene una línea suelta `Guardá, commitá:` entre los pasos 1 y 2 que parece pegada por error — se dejó tal cual hasta que NH confirme si se saca (2026-09-24)
+- Protección de `/api/chat` (2026-09-24, mismo patrón que barraca-hefesto): valida `Origin`/`Referer` (dominio real + `*.netlify.app` + localhost), forma y largo del historial (últimos 20 mensajes, 2000 caracteres cada uno), `max_tokens` 500, errores genéricos, y solo reenvía `content` al widget. Rate limit nativo de Netlify en `config.rateLimit` (15 cada 180 s por IP) — solo se activa en un deploy real, no con `netlify dev`. No sacar ninguno de estos chequeos sin un reemplazo: la API key es de NH y el endpoint es público
+- `WA_NUMBER` en `WhatsAppChat.astro` está **vacío a propósito**: falta el número de la radio (se confirma si aprueban el presupuesto). Vacío, `wa.me` abre WhatsApp con el mensaje escrito y el oyente elige el contacto. `59899474094` es el número personal de NH (quedó de las pruebas) — no volver a usarlo acá
 - `STREAM`/`STATUS` (URLs de Icecast) en `StickyPlayer.astro` y `CHANNEL_ID` en `youtube-live.js` — apuntan a infraestructura real de la radio
 - `WEB3FORMS_KEY` en `Contact.astro` — clave pública de Web3Forms (es normal que esté en el cliente), no reemplazar sin coordinar con el dueño de la cuenta
 - `astro.config.mjs` (`site: 'https://santaisabelfm.com.uy'`) y `netlify.toml` — afectan build/deploy en producción
@@ -43,9 +45,10 @@ Sitio web de Santa Isabel FM (100.1, Paso de los Toros, Uruguay). Radio en vivo 
 ## Comandos
 
 ```bash
-npm run dev       # http://localhost:4321
+npm run dev       # http://localhost:4321 — NO sirve las Netlify Functions (chat y YouTube en vivo)
 npm run build     # genera /dist
 npm run preview   # sirve /dist localmente
+npx netlify dev   # sitio + functions en local (necesita ANTHROPIC_API_KEY / YOUTUBE_API_KEY)
 ```
 
 Deploy: push a la rama principal → Netlify hace build (`npm run build`) y publica `dist/` automáticamente.

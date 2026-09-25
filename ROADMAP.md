@@ -19,14 +19,17 @@
 
 ## En curso
 
-- (nada registrado actualmente — completar en la próxima sesión de trabajo)
+- Proyecto a medio camino: el cliente todavía no aprobó el presupuesto (2026-09-24).
+- **Pendiente de verificar en producción**: que el widget responda en el sitio publicado con la nueva ruta `/api/chat`, y el rate limit (solo se activa en un deploy real).
 
 ## Próximo / Pendiente
 
-- (sin pendientes documentados todavía — agregar acá al cierre de cada sesión, idealmente priorizado, ej.: Alta / Media / Baja)
+- Si aprueban el presupuesto: cargar el número de WhatsApp de la radio en `WA_NUMBER` (`WhatsAppChat.astro`, hoy vacío a propósito) y autohospedar las fuentes (hoy Google Fonts por CDN).
+- Confirmar con NH si se saca la línea suelta `Guardá, commitá:` del `systemPrompt` de `chat.js`.
 
 ## Changelog resumido
 
+- **2026-09-24** — `/api/chat` protegido: `chat.js` pasó a Netlify Functions v2 con validación de origen, forma y largo del historial, `max_tokens` 500, errores genéricos y rate limit nativo (el endpoint estaba abierto sin límites y usa la API key de NH). Se sacó del widget el número personal de NH, que había quedado de las pruebas.
 - Scaffold inicial del proyecto Astro + estructura de secciones
 - Video de YouTube destacado → channel ID real → detección de vivo automática
 - Toggle de tema + ajustes de paleta en modo claro
