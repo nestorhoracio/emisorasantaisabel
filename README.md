@@ -95,6 +95,25 @@ npm run build
 
 ---
 
+## Contador de reproducciones
+
+El hero muestra cuántas veces se escuchó la radio desde el sitio ("▶ 1.234 reproducciones"), arriba del todo, debajo del header. Hasta que haya una primera reproducción, el contador no se muestra.
+
+**Cómo funciona:**
+
+- `GET /api/reproducciones` (`netlify/edge-functions/reproducciones-leer.ts`) devuelve `{ "total": N }`. La CDN de Netlify cachea la respuesta 30 s.
+- `POST /api/reproducciones/sumar` (`reproducciones-sumar.ts`) suma 1 y devuelve el total nuevo. Solo acepta requests desde el propio sitio (header `Origin`) y tiene un rate limit de Netlify de 10 requests por minuto por IP.
+- `PlayCounter.astro` consulta el total al cargar la página y cada 30 s mientras la pestaña está visible. Una reproducción se cuenta cuando el `<audio>` del player arranca de verdad (no al hacer clic), como mucho una vez cada 30 min por navegador: pausar y volver a darle play no suma.
+- El total vive en el store `reproducciones` de Netlify Blobs, repartido en 8 blobs (`conteo-0` … `conteo-7`). Blobs no tiene incremento atómico, y repartir el total reduce el riesgo de perder una suma cuando dos personas le dan play al mismo tiempo (detalle en `src/lib/reproducciones.ts`).
+
+**Qué esperar:** quien le da play ve su suma al instante. El resto de los visitantes la ven sin recargar en un máximo de ~60 s (consulta cada 30 s + caché de 30 s). Para que sea más rápido, bajar `INTERVALO_MS` en `PlayCounter.astro` y `s-maxage` en `reproducciones-leer.ts`, a costa de más invocaciones. Es un contador indicativo, no auditable: alguien con `curl` puede sumar hasta 10 por minuto desde su IP. Cuenta solo lo que se reproduce desde este sitio, no a quien escucha por el dial o por otra app.
+
+**Probarlo:** `npm run dev` no corre Edge Functions: ahí el contador queda oculto y el hero se ve como siempre. Para probarlo de verdad, `npx netlify dev` (http://localhost:8888): corre las Edge Functions reales y usa un store de Blobs **local** (carpeta `.netlify/`, ignorada por git), así que no toca producción. Ojo con un deploy borrador (`netlify deploy --build`, sin `--prod`): ese sí lee y escribe el **mismo** store que producción.
+
+**Poner el total en cero:** `netlify blobs:list reproducciones` y `netlify blobs:delete reproducciones <clave>` para cada `conteo-N` (con el sitio enlazado: `netlify link`).
+
+---
+
 ## Now Playing — nota técnica
 
 El endpoint de metadatos Icecast es:

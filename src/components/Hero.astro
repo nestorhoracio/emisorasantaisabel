@@ -1,5 +1,6 @@
 ---
 // Hero.astro
+import PlayCounter from './PlayCounter.astro';
 ---
 
 <section class="hero" id="inicio">
@@ -42,6 +43,9 @@
     </button>
 
   </div>
+
+  <!-- Contador de reproducciones: absoluto arriba del hero, oculto hasta que haya al menos una -->
+  <PlayCounter />
 </section>
 
 <style>

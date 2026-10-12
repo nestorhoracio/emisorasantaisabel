@@ -1,0 +1,154 @@
+---
+// PlayCounter.astro — contador de reproducciones en vivo (va como hijo directo de
+// `.hero`, que es su contenedor posicionado). Lee y suma contra las Edge Functions
+// de netlify/edge-functions/ (Netlify Blobs).
+// Queda oculto hasta que haya al menos una reproducción, y también si la API no
+// responde (ej. `npm run dev`, que no corre Edge Functions).
+// Va en posición absoluta arriba del hero a propósito: el hero está centrado en
+// 100svh sin descontar header y player, así que cualquier cosa debajo del botón
+// queda tapada por el player fijo, y en el flujo normal empujaría el contenido al
+// aparecer (el hero centra verticalmente).
+---
+
+<p class="play-counter" id="sifm-reproducciones" hidden>
+  <svg class="pc-icon" width="10" height="12" viewBox="0 0 13 15" fill="none" aria-hidden="true">
+    <path d="M1 1.5l11 6-11 6V1.5z" fill="currentColor"/>
+  </svg>
+  <span class="pc-num" id="sifm-reproducciones-num"></span>
+  <span class="pc-label" id="sifm-reproducciones-label">reproducciones</span>
+</p>
+
+<style>
+  .play-counter {
+    position: absolute;
+    top: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    white-space: nowrap;
+  }
+
+  /* display:flex pisa el atributo hidden: hay que reforzarlo */
+  .play-counter[hidden] { display: none; }
+
+  .pc-icon {
+    color: var(--red);
+    align-self: center;
+  }
+
+  .pc-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pc-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  const URL_CONTEO = '/api/reproducciones';
+  const URL_SUMAR = '/api/reproducciones/sumar';
+  const INTERVALO_MS = 30_000;
+  // Una reproducción cuenta como mucho una vez cada 30 min por navegador: pausar
+  // y volver a darle play no suma otra.
+  const VENTANA_MS = 30 * 60 * 1000;
+  const CLAVE_STORAGE = 'sifm-reproducciones';
+
+  const contador = document.getElementById('sifm-reproducciones');
+  const numEl = document.getElementById('sifm-reproducciones-num');
+  const etiquetaEl = document.getElementById('sifm-reproducciones-label');
+  const audio = document.getElementById('sifm-audio');
+
+  const formato = new Intl.NumberFormat('es-UY');
+
+  let mostrado = 0;
+  let apiDisponible = true;
+  let ultimaSumaEnMemoria = 0;
+  let porContar = false;
+
+  function pintar(total: number) {
+    // Nunca hacia atrás: la lectura cacheada (hasta 30 s en la CDN) puede traer
+    // un valor menor al que acaba de devolver nuestra propia suma.
+    if (!contador || !numEl || !etiquetaEl || !(total > mostrado)) return;
+    mostrado = total;
+    numEl.textContent = formato.format(total);
+    etiquetaEl.textContent = total === 1 ? 'reproducción' : 'reproducciones';
+    contador.hidden = false;
+  }
+
+  async function actualizar() {
+    if (!apiDisponible || document.visibilityState !== 'visible') return;
+    try {
+      const respuesta = await fetch(URL_CONTEO);
+      if (respuesta.status === 404) {
+        apiDisponible = false; // entorno sin Edge Functions: no seguir consultando
+        return;
+      }
+      if (!respuesta.ok) return;
+      const { total } = await respuesta.json();
+      if (typeof total === 'number') pintar(total);
+    } catch {
+      // Sin red o API caída: se reintenta en el próximo intervalo.
+    }
+  }
+
+  // Devuelve true (y deja registrada la suma) si no se contó nada en los últimos
+  // 30 min. localStorage para que valga entre pestañas y recargas; si no está
+  // disponible (modo privado, bloqueado), la ventana vale en esta pestaña.
+  function reservarSuma(): boolean {
+    let ultima = ultimaSumaEnMemoria;
+    try {
+      ultima = Number(localStorage.getItem(CLAVE_STORAGE)) || ultima;
+    } catch {
+      // Se usa el respaldo en memoria.
+    }
+    const ahora = Date.now();
+    if (ahora - ultima < VENTANA_MS) return false;
+    ultimaSumaEnMemoria = ahora;
+    try {
+      localStorage.setItem(CLAVE_STORAGE, String(ahora));
+    } catch {
+      // Ídem.
+    }
+    return true;
+  }
+
+  async function registrar() {
+    try {
+      const respuesta = await fetch(URL_SUMAR, { method: 'POST' });
+      if (!respuesta.ok) return;
+      const { total } = await respuesta.json();
+      if (typeof total === 'number') pintar(total);
+    } catch {
+      // Una suma perdida no afecta la reproducción.
+    }
+  }
+
+  // sifm:playing se dispara al hacer clic, antes de que suene nada. La
+  // reproducción se cuenta recién cuando el <audio> de StickyPlayer.astro arranca
+  // de verdad (evento nativo "playing").
+  audio?.addEventListener('playing', () => {
+    if (!porContar) return;
+    porContar = false; // los "playing" tras un corte de buffer no vuelven a contar
+    if (reservarSuma()) registrar();
+  });
+
+  window.addEventListener('sifm:playing', () => { porContar = true; });
+  window.addEventListener('sifm:paused', () => { porContar = false; });
+
+  actualizar();
+  setInterval(actualizar, INTERVALO_MS);
+  document.addEventListener('visibilitychange', actualizar);
+</script>
