@@ -1,7 +1,10 @@
 ---
 // StickyPlayer.astro — barra fija inferior con stream Icecast + Now Playing
 const STREAM = 'https://emisiones.com.uy:8166/san';
-const STATUS = 'https://emisiones.com.uy:8166/status-json.xsl';
+// Título del tema que suena: lo pide la Edge Function netlify/edge-functions/estado.ts
+// al Icecast desde el servidor. Directo desde el navegador no se puede: el
+// status-json.xsl (https://emisiones.com.uy:8166/status-json.xsl) no manda CORS.
+const STATUS = '/api/estado';
 ---
 
 <div class="player" id="sifm-player">
@@ -299,30 +302,43 @@ const STATUS = 'https://emisiones.com.uy:8166/status-json.xsl';
     audio.volume = volRange.value / 100;
   });
 
-  // ── Now Playing — fetch metadatos Icecast cada 30s ──
+  // ── Estado del stream — /api/estado cada 30s: título del tema y oyentes ──
+  // La Function netlify/functions/estado.ts le pregunta al Icecast desde el servidor
+  // (ya elige el mountpoint y limpia el título). Es la ÚNICA consulta del sitio: el
+  // contador de oyentes del hero (ListenersCounter.astro) recibe el resultado por el
+  // evento `sifm:estado` en vez de pedirlo por su cuenta, así no se duplican pedidos
+  // (cada invocación gasta del cupo de Functions de la cuenta).
+  let estadoDisponible = true;
+
+  function publicarEstado(data) {
+    window.__sifmEstado = data; // null si la consulta falló
+    window.dispatchEvent(new CustomEvent('sifm:estado', { detail: data }));
+  }
+
   function fetchNowPlaying() {
+    // Con la pestaña en segundo plano (una radio suele quedar abierta horas) nadie ve
+    // el título ni el contador: no consultar. Al volver, visibilitychange refresca.
+    if (!estadoDisponible || document.visibilityState !== 'visible') return;
+
     const ctrl  = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
 
-    fetch(STATUS, { mode: 'cors', signal: ctrl.signal })
-      .then(r => r.json())
+    fetch(STATUS, { signal: ctrl.signal })
+      .then(r => {
+        if (r.status === 404) estadoDisponible = false; // entorno sin Functions (npm run dev)
+        return r.ok ? r.json() : null;
+      })
       .then(data => {
         clearTimeout(timer);
-        const src = data?.icestats?.source;
-        if (!src) return;
-
-        // Icecast puede devolver un objeto o array de sources
-        const mount = Array.isArray(src)
-          ? (src.find(s => s.listenurl?.includes('/san')) ?? src[0])
-          : src;
-
-        const title = mount?.title ?? mount?.['song-title'];
-        if (title?.trim()) plTrack.textContent = title.trim();
+        publicarEstado(data);
+        const title = typeof data?.titulo === 'string' ? data.titulo.trim() : '';
+        if (title) plTrack.textContent = title;
       })
-      .catch(() => clearTimeout(timer));
+      .catch(() => { clearTimeout(timer); publicarEstado(null); });
     // Fallo silencioso: queda el fallback "Santa Isabel FM — En vivo"
   }
 
   fetchNowPlaying();
   setInterval(fetchNowPlaying, 30_000);
+  document.addEventListener('visibilitychange', fetchNowPlaying);
 </script>

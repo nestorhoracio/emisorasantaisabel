@@ -1,13 +1,9 @@
 ---
-// PlayCounter.astro — contador de reproducciones en vivo (va como hijo directo de
-// `.hero`, que es su contenedor posicionado). Lee y suma contra las Edge Functions
-// de netlify/edge-functions/ (Netlify Blobs).
+// PlayCounter.astro — contador de reproducciones en vivo (va dentro de `.hero-stats`,
+// en Hero.astro, que es el que lo posiciona arriba del hero; ver la nota ahí).
+// Lee y suma contra las Edge Functions de netlify/edge-functions/ (Netlify Blobs).
 // Queda oculto hasta que haya al menos una reproducción, y también si la API no
 // responde (ej. `npm run dev`, que no corre Edge Functions).
-// Va en posición absoluta arriba del hero a propósito: el hero está centrado en
-// 100svh sin descontar header y player, así que cualquier cosa debajo del botón
-// queda tapada por el player fijo, y en el flujo normal empujaría el contenido al
-// aparecer (el hero centra verticalmente).
 ---
 
 <p class="play-counter" id="sifm-reproducciones" hidden>
@@ -20,11 +16,6 @@
 
 <style>
   .play-counter {
-    position: absolute;
-    top: 1.25rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
     display: flex;
     align-items: baseline;
     gap: 0.55rem;

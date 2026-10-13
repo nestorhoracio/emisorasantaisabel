@@ -16,8 +16,12 @@ export default async () => {
       {
         headers: {
           // El navegador siempre revalida; la CDN de Netlify guarda la respuesta
-          // 30 s, así que todos los visitantes que consultan en esa ventana
-          // comparten una sola invocación (requiere `cache: 'manual'` abajo).
+          // 30 s (requiere `cache: 'manual'` abajo). Ojo: esa caché es POR NODO de la
+          // CDN, así que visitantes que caen en nodos distintos pueden disparar una
+          // invocación cada uno (probado el 2026-10-12 en un deploy borrador: la
+          // misma URL dio miss, miss, miss, miss, hit, hit, hit, miss). La directiva
+          // `durable` — que sí unifica nodos en las Functions comunes — no aplica
+          // acá: con una Edge Function no aparece la capa Durable en Cache-Status.
           'Cache-Control': 'public, max-age=0, must-revalidate',
           'Netlify-CDN-Cache-Control': 'public, s-maxage=30',
         },

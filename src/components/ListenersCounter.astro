@@ -1,0 +1,96 @@
+---
+// ListenersCounter.astro — oyentes conectados ahora (va dentro de `.hero-stats`, en Hero.astro)
+// No consulta nada por su cuenta: StickyPlayer.astro pide /api/estado (la Function
+// netlify/functions/estado.ts le pregunta al Icecast desde el servidor, porque su
+// status-json.xsl no manda CORS) y avisa con el evento `sifm:estado`.
+// Queda oculto si no hay oyentes y también si la API no responde (ej. `npm run dev`,
+// que no corre Functions). Distinto del contador de reproducciones: este es la
+// cantidad simultánea de conexiones al stream (el sitio o cualquier otro reproductor;
+// no incluye el dial FM), no un acumulado.
+---
+
+<p class="listeners-counter" id="sifm-oyentes" hidden>
+  <span class="lc-dot" aria-hidden="true"></span>
+  <span class="lc-num" id="sifm-oyentes-num"></span>
+  <span class="lc-label" id="sifm-oyentes-label">oyentes ahora</span>
+</p>
+
+<style>
+  .listeners-counter {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    white-space: nowrap;
+  }
+
+  /* display:flex pisa el atributo hidden: hay que reforzarlo */
+  .listeners-counter[hidden] { display: none; }
+
+  .lc-dot {
+    align-self: center;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--red-bright);
+    animation: lc-blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes lc-blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.2; transform: scale(0.6); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-dot { animation: none; }
+  }
+
+  .lc-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lc-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  declare global {
+    interface Window {
+      __sifmEstado?: { oyentes?: unknown } | null;
+    }
+  }
+
+  const contador = document.getElementById('sifm-oyentes');
+  const numEl = document.getElementById('sifm-oyentes-num');
+  const etiquetaEl = document.getElementById('sifm-oyentes-label');
+
+  const formato = new Intl.NumberFormat('es-UY');
+
+  function aplicar(estado: { oyentes?: unknown } | null | undefined) {
+    if (!contador || !numEl || !etiquetaEl) return;
+    const oyentes = estado?.oyentes;
+    // Sin dato (la consulta falló: un número viejo sería engañoso) o sin oyentes
+    // (también con la radio fuera del aire): no se muestra. "0 oyentes" no aporta.
+    if (typeof oyentes !== 'number' || !(oyentes > 0)) {
+      contador.hidden = true;
+      return;
+    }
+    numEl.textContent = formato.format(oyentes);
+    etiquetaEl.textContent = oyentes === 1 ? 'oyente ahora' : 'oyentes ahora';
+    contador.hidden = false;
+  }
+
+  // StickyPlayer.astro consulta /api/estado cada 30 s y publica el resultado acá.
+  window.addEventListener('sifm:estado', (e) => aplicar((e as CustomEvent).detail));
+  // Por si el player ya lo trajo antes de que corriera este script.
+  if (window.__sifmEstado !== undefined) aplicar(window.__sifmEstado);
+</script>

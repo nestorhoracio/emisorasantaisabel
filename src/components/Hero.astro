@@ -1,5 +1,6 @@
 ---
 // Hero.astro
+import ListenersCounter from './ListenersCounter.astro';
 import PlayCounter from './PlayCounter.astro';
 ---
 
@@ -44,8 +45,11 @@ import PlayCounter from './PlayCounter.astro';
 
   </div>
 
-  <!-- Contador de reproducciones: absoluto arriba del hero, oculto hasta que haya al menos una -->
-  <PlayCounter />
+  <!-- Contadores en vivo: absolutos arriba del hero; cada uno se oculta solo si no tiene dato -->
+  <div class="hero-stats">
+    <ListenersCounter />
+    <PlayCounter />
+  </div>
 </section>
 
 <style>
@@ -84,6 +88,25 @@ import PlayCounter from './PlayCounter.astro';
   .hero-inner {
     position: relative;
     z-index: 1;
+  }
+
+  /* Contadores en vivo (oyentes y reproducciones). Van en posición absoluta arriba del
+     hero a propósito: el hero está centrado en 100svh sin descontar header y player, así
+     que cualquier cosa debajo del botón queda tapada por el player fijo, y en el flujo
+     normal empujaría el contenido al aparecer (el hero centra verticalmente). Full width
+     + wrap: en pantallas angostas los dos se apilan en vez de salirse. */
+  .hero-stats {
+    position: absolute;
+    top: 1.25rem;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.2rem 1.8rem;
+    padding: 0 1rem;
   }
 
   /* Badge */

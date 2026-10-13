@@ -101,7 +101,7 @@ El hero muestra cuántas veces se escuchó la radio desde el sitio ("▶ 1.234 r
 
 **Cómo funciona:**
 
-- `GET /api/reproducciones` (`netlify/edge-functions/reproducciones-leer.ts`) devuelve `{ "total": N }`. La CDN de Netlify cachea la respuesta 30 s.
+- `GET /api/reproducciones` (`netlify/edge-functions/reproducciones-leer.ts`) devuelve `{ "total": N }`. La CDN de Netlify cachea la respuesta 30 s (por nodo de la CDN: visitantes que caen en nodos distintos pueden disparar una invocación cada uno).
 - `POST /api/reproducciones/sumar` (`reproducciones-sumar.ts`) suma 1 y devuelve el total nuevo. Solo acepta requests desde el propio sitio (header `Origin`) y tiene un rate limit de Netlify de 10 requests por minuto por IP.
 - `PlayCounter.astro` consulta el total al cargar la página y cada 30 s mientras la pestaña está visible. Una reproducción se cuenta cuando el `<audio>` del player arranca de verdad (no al hacer clic), como mucho una vez cada 30 min por navegador: pausar y volver a darle play no suma.
 - El total vive en el store `reproducciones` de Netlify Blobs, repartido en 8 blobs (`conteo-0` … `conteo-7`). Blobs no tiene incremento atómico, y repartir el total reduce el riesgo de perder una suma cuando dos personas le dan play al mismo tiempo (detalle en `src/lib/reproducciones.ts`).
@@ -114,26 +114,22 @@ El hero muestra cuántas veces se escuchó la radio desde el sitio ("▶ 1.234 r
 
 ---
 
-## Now Playing — nota técnica
+## Oyentes en vivo y "Sonando ahora"
 
-El endpoint de metadatos Icecast es:
-`https://emisiones.com.uy:8166/status-json.xsl`
+El hero muestra, al lado de las reproducciones, cuántas personas están escuchando **ahora** ("● 12 oyentes ahora"), y el player muestra el título del tema que suena. Los dos salen del mismo dato: el estado del Icecast de la radio. Si no hay oyentes, o el Icecast no responde, el contador de oyentes no se muestra (un número viejo sería engañoso).
 
-Si el fetch falla por CORS, la solución es crear un proxy en Netlify:
+**Cómo funciona:**
 
-En `netlify.toml`:
-```toml
-[[redirects]]
-  from = "/api/nowplaying"
-  to   = "https://emisiones.com.uy:8166/status-json.xsl"
-  status = 200
-  force  = true
-```
+- El endpoint de estado del Icecast es `https://emisiones.com.uy:8166/status-json.xsl`. **El navegador no puede leerlo**: no manda `Access-Control-Allow-Origin`, así que Chrome lo bloquea por CORS. Por eso lo pide el servidor.
+- `GET /api/estado` (`netlify/functions/estado.ts`) le pregunta al Icecast, elige el mountpoint `/san` (`src/lib/estado-icecast.ts`) y devuelve `{ "oyentes": N, "titulo": "…" | null }`. La CDN de Netlify cachea la respuesta 60 s con la directiva `durable` (compartida entre nodos), así que aunque haya visitantes todo el día hay como mucho una invocación por minuto.
+- `StickyPlayer.astro` es el único que consulta `/api/estado`, cada 30 s mientras la pestaña está visible, y reparte el resultado con el evento `sifm:estado`: el título lo usa el propio player y `ListenersCounter.astro` (en el hero) muestra los oyentes. No consulta con la pestaña en segundo plano.
+- Los oyentes son las conexiones al stream **de cualquier reproductor** (el sitio, apps, directorios de radios). No incluye a quien escucha por el dial FM. Incluye al propio visitante, unos segundos después de darle play.
 
-Luego cambiar `STATUS` en `StickyPlayer.astro`:
-```js
-const STATUS = '/api/nowplaying';
-```
+**Es una Function de Node y no una Edge Function** (a diferencia del contador de reproducciones) porque el servidor del Icecast solo ofrece TLS 1.2 con intercambio de claves RSA estático, que el TLS de Deno (`rustls`) no soporta: la Edge Function muere con `HandshakeFailure`. Detalle en CLAUDE.md → Gotchas.
+
+**Qué esperar:** un cambio en los oyentes tarda hasta ~90 s en verse (caché de 60 s + consulta cada 30 s). "Sonando ahora" muestra el texto de respaldo ("Santa Isabel FM — En vivo") mientras el Icecast no informe `title`: en las consultas del 2026-10-12 la fuente no mandaba metadatos, así que hay que pedirle a quien opera la consola/automatización de la radio que los envíe al Icecast.
+
+**Probarlo:** `npx netlify dev` (http://localhost:8888) corre la Function de verdad y le pregunta al Icecast real (solo lectura). `npm run dev` no corre Functions: ahí el contador de oyentes queda oculto y el player conserva el texto de respaldo.
 
 ---
 
