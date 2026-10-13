@@ -110,7 +110,7 @@ El hero muestra cuántas veces se escuchó la radio desde el sitio ("▶ 1.234 r
 
 **Probarlo:** `npm run dev` no corre Edge Functions: ahí el contador queda oculto y el hero se ve como siempre. Para probarlo de verdad, `npx netlify dev` (http://localhost:8888): corre las Edge Functions reales y usa un store de Blobs **local** (carpeta `.netlify/`, ignorada por git), así que no toca producción. Ojo con un deploy borrador (`netlify deploy --build`, sin `--prod`): ese sí lee y escribe el **mismo** store que producción.
 
-**Poner el total en cero:** `netlify blobs:list reproducciones` y `netlify blobs:delete reproducciones <clave>` para cada `conteo-N` (con el sitio enlazado: `netlify link`).
+**Poner el total en cero:** con la CLI de Netlify y la carpeta enlazada al sitio (`netlify link --name emisorasantaisabel`): `netlify blobs:list reproducciones` para ver las claves y `netlify blobs:delete reproducciones conteo-0 --force` (… hasta `conteo-7`) para borrarlas. El GET público puede seguir mostrando el valor anterior hasta 30 s por la caché de la CDN.
 
 ---
 
